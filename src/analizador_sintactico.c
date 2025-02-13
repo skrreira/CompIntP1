@@ -19,16 +19,14 @@ al acabar, imprimimos que el analizador_sintactico finalizo
 #include <string.h>
 #include "analizador_lexico.h"
 
-#define TOKEN_EOF -1;
+#define TOKEN_EOF -1
 
 
 // Función: inicia el analizador sintáctico. Usada desde el main:
-int iniciar_analizador_sintactico(){
+int iniciar_analizador_sintactico(){ //No necesita referencia al fichero => se le pasa en el main al léxico
 
     // Variable para almacenar los componentes léxicos:
-    ComponenteLexico componenteLexico;
-    componenteLexico.token = 0;
-    componenteLexico.lexema = NULL;
+    ComponenteLexico componenteLexico = {0};
 
     // Informamos del comienzo del análisis:
     printf("\nInicio del análisis sintáctico:\n");

@@ -1,6 +1,9 @@
 #ifndef ANALIZADOR_LEXICO_H
 #define ANALIZADOR_LEXICO_H
 
+// Includes
+#include <stdio.h>
+
 // Definición de la longitud máxima de los lexemas:
 #define MAX_LEXEMA 64
 
@@ -10,13 +13,11 @@ typedef struct{
     char lexema[MAX_LEXEMA];
 } ComponenteLexico;
 
-// Función para obtener siguiente componente léxico: será llamada por el analizador
-// sintáctico:
+// Función para inicializar el analizador léxico: será llamada desde main:
+int inicializar_analizador_lexico(FILE* codigo_fuente); //Devolverá 1 si hay errores.
+
+// Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico();
-
-// EXPORTAR FUNCION INICIALIZAR ANALIZADOR LÉXICO
-
-
 
 
 #endif //ANALIZADOR_LEXICO_H

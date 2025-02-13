@@ -1,0 +1,24 @@
+
+
+1º: hacer primer prototipo de analizador sintactico (básico)
+
+2º: hacer pruebas con dummy functions
+
+HACER GESTIÓN ARGUMENTOS MAIN => 5 mins
+
+3º: ponerse con la tabla hash + TS => exportar funciones correctamente
+
+4º: hacer pruebas con dummy functions
+
+5º: hacer preprocesado con la funcion inicializar_TS (array de strings hardcoded)
+
+6º: más pruebas
+
+7º: si todo hasta aquí funciona, empezar con la "caja negra" de analizador lexico (es
+un autómata) => ver si se devulve struct* o como se hace
+
+
+
+
+
+///// En etapas finales hace todo lo de gestión de errores
