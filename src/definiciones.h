@@ -1,3 +1,7 @@
+// DEFINICIONES.H
+/* Este fichero contiene todas las palabras reservadas del lenguaje GO
+junto a los valores que se le darán en la tabla de símbolos*/
+
 #define break 300
 #define default 301
 #define func 302
