@@ -14,6 +14,9 @@ typedef struct{
 // sintáctico:
 ComponenteLexico siguienteComponenteLexico();
 
+// EXPORTAR FUNCION INICIALIZAR ANALIZADOR LÉXICO
+
+
 
 
 #endif //ANALIZADOR_LEXICO_H
