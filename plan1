@@ -1,0 +1,88 @@
+primero asumimos que cargamos todo el código fuente en memoria (lo maś
+complicado va a ser realizar un sistema de entrada)
+
+tenemos un análisis léxico, y después un analizador sintáctico (vacío) ->
+lo usaremos para recorrer la secuencia de caracteres léxicos e imprimir por
+pantalla
+
+Desde análisis sintactico invocamos una función en análisis léxico (sig.comp_lexico)
+y el análisis léxico devuelve el componente léxico.
+
+ambos tienen .h -> análisis sintactico incluye a analisis lexico.h
+
+//Análisis sintáctico
+while (!EOF){
+
+
+
+}
+
+//convención:
+imprimimos componente léxico (números distintivos) y lexemas
+
+tener un definiciones.h => #define PACKAGE 300
+
+para los números => consultar referencias del lenguaje => KEYWORDS
+
+para que devuelva varias cosas la funcion => struct (int, char[])
+devolvemos un struct / puntero a struct
+
+para determinar una solucion => primero eficiencia en tiempo despues eficiencia en memoria
+
+main = identificador
+#define ID 301
+
+como diferenciamos package de main?
+
+expresion => caracter alfabetico seguido de cualquier repetición de caracteres alfanumericos
+
+distinguimos componentes lexicos de identificadores con una tabla de símbolos
+aqui meteremos las palabras reservadas
+después de leer "package" => comprobamos en la tabla de símbolos
+análisis léxico => buscar() => función de busqueda implementada en la tabla
+de símbolos => TS.c TS.h => coge el lexema pasado por argumentos y lo busca =>
+tabla de símbolos devuelve el componente léxico (número ej. 300)
+
+INICIALIZAMOS la TS con las KEYWORDS antes de compilar
+funcion insertar()
+
+tenemos un main.c al principio => ese main puede inicializar la tabla de símbolos
+y las estructuras de datos.
+
+EMPIEZA => en análisis sintáctico => comienzo de la práctica => llama al 
+análisis léxico => chequea en currentSum.go
+
+para la inicialización => array de strings (va hardcodeado en TS) => bucle de inserción
+main => llama a la tabla de símbolos y se inicializa
+
+tener dos ficheros:
+ABB.c ABB.h y TS.c y TS.h => tenemos una abstracción pero no pasaría nada si
+cambiamos ABB por una HASH
+la tabla ya publica sus métodos => no hacen falta punteros
+
+
+CUando en la tabla de símbolos no está un lexema leído, se inserta ese
+lexema a la TS => además le asigna ID como número
+
+¿ID es igual o distinto? => son idénticos
+
+solo vamos a considerar un único bloque => no hay ámbitos / niveles
+
+DELIMITADORES
+si se encuentran delimitadores no hace falta preguntar a la TS => se devuelve directamente
+Ademas tiene un ASCII asociado => se devuelve 40
+especificador %c40 => imprime "("
+no hace falta guardar delimitadores en la TS
+
+NÚMEROS:
+Tampoco hace falta guardarlos en la TS => la TS sólo hace lo que hace
+ 
+
+
+
+
+
+
+
+
+
