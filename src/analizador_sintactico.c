@@ -19,6 +19,8 @@ al acabar, imprimimos que el analizador_sintactico finalizo
 #include <string.h>
 #include "analizador_lexico.h"
 
+#include <unistd.h>
+
 #define TOKEN_EOF -1
 
 
@@ -29,7 +31,7 @@ int iniciar_analizador_sintactico(){ //No necesita referencia al fichero => se l
     ComponenteLexico componenteLexico = {0};
 
     // Informamos del comienzo del análisis:
-    printf("\nInicio del análisis sintáctico:\n");
+    printf("\nInicio del análisis sintáctico:\n\n");
     
     // Bucle: patrón productor - consumidor, se le pide el siguiente comp. léxico al
     // analizador léxico.
@@ -38,7 +40,7 @@ int iniciar_analizador_sintactico(){ //No necesita referencia al fichero => se l
         componenteLexico = siguienteComponenteLexico();
 
         // Imprimimos tupla <token, "lexema">,
-        printf("<%d, %s>", componenteLexico.token, componenteLexico.lexema);
+        printf("<%d, %s>\n", componenteLexico.token, componenteLexico.lexema);
 
         /* NOTA: cuándo llegan delimitadores o números el encargado de poner
         correctamente el formato es el analizador léxico. Para ello va a 

@@ -1,0 +1,17 @@
+
+#ifndef ANALIZADOR_SINTACTICO_H
+#define ANALIZADOR_SINTACTICO_H
+
+
+
+
+
+
+//EXPORTAR FUNCION INICIAR ANALIZADOR SINTÁCTICO
+int iniciar_analizador_sintactico();
+
+
+
+
+
+#endif //ANALIZADOR_SINTACTICO_H

@@ -1,6 +1,6 @@
 
 
-// exporta función "buscar()" e "insertar()"
+// exporta función "buscar()" e "insertar()" (insertar llama a iinsertar de tabla hash)
 
 // EXPORTAR FUNCIÓN INICIALIZAR() -> reserva memoria + recorre array hardcoded e inserta 
 

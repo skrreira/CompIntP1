@@ -26,13 +26,9 @@ int inicializar_analizador_lexico(FILE* codigo_fuente_arg){ //Devolverá 1 si ha
 // Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico(){
 
-    /* DEBUG */
     ComponenteLexico componenteLexico = {0};
-    strcpy(componenteLexico.lexema, lexemas_debug[contador_debug]);    
-    componenteLexico.token = 300 + contador_debug;
-    if (strcmp(componenteLexico.lexema, "eof") == 0 ){
-        componenteLexico.token = -1;
-    }
+
+    // POR HACER
 
 
     return componenteLexico;
