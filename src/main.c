@@ -30,16 +30,10 @@ int main(int argc, char* argv[]){
 
     // Inicializar analizador léxico y estructuras de datos (constructor). Le pasamos el documento
     inicializar_analizador_lexico(codigo_fuente); //GESTIÓN DE ERRORES?
-
-    /*
-    // Llamar a función para inicializar TS. Bucle que inserta valores hardcodeados
-    // pasar como argumento el documento.
-    inicializar_TS(codigo_fuente); //GESTIÓN DE ERRORES
-    */
+    // La TS (y a su vez la hash) se inicializan tb con la función de arriba.
 
     // Iniciar definitivamente el analizador sintáctico -> llamara al léxico
     iniciar_analizador_sintactico(); //GESTIÓN DE ERRORES? No necesita argumento
-
     
     // Liberamos recursos
     fclose(codigo_fuente);

@@ -3,6 +3,7 @@
 
 #include "analizador_lexico.h" // El tipo de datos "ComponenteLexico" viene del archivo .h
 #include <string.h>
+#include "TS.h"
 
 // Variables globales
 FILE* codigo_fuente = NULL;
@@ -17,7 +18,11 @@ int inicializar_analizador_lexico(FILE* codigo_fuente_arg){ //Devolverá 1 si ha
     // Asignar puntero a FILE a la variable global para usar en "siguienteComponenteLexico()""
     codigo_fuente = codigo_fuente_arg;
 
-    // POR AHORA NO HARÁ NADA
+    // Inicializaremos la Tabla de Símbolos:
+    TablaSimbolos ts;
+    inicializarTablaSimbolos(&ts);
+
+    // Información:
     printf("\nAnalizador léxico inicializado correctamente\n");
 
     return 0;
