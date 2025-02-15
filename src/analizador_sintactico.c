@@ -18,7 +18,6 @@ al acabar, imprimimos que el analizador_sintactico finalizo
 #include <stdio.h>
 #include <string.h>
 #include "analizador_lexico.h"
-
 #include <unistd.h>
 
 #define TOKEN_EOF -1
