@@ -41,7 +41,7 @@ static const PalabraReservada palabrasReservadas[] = {
 static const int NUM_PALABRAS_RESERVADAS = sizeof(palabrasReservadas) / sizeof(palabrasReservadas[0]);
 
 // 1. Inicializa la tabla de símbolos y añade las keywords de Go.
-void inicializarTablaSimbolos(TablaSimbolos *ts){
+void inicializarTS(TablaSimbolos *ts){
 
     // Inicializamos Tabla Hash
     inicializarTablaHash(&ts->tabla);
@@ -76,4 +76,26 @@ void cargarPalabrasReservadas(TablaSimbolos *ts) {
     }
 }
 
-// 2. Inserta un nuevo <token, lexema> en la tabla de símbolos.
+// 2. Inserta un nuevo <token_identificador, lexema_identificador> en la tabla de símbolos.
+// Sólo insertará identificadores, todas las 'keywords' son insertadas en inicialización.
+void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya que no va a ser modificado.
+
+    // Reservamos memoria para almacenar un nuevo elemento tipo "ComponenteLexico"
+    ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
+
+    // Copiamos el valor del token identificador:
+    nuevo->token = TOKEN_IDENTIFICADOR;
+
+    // Ídem con la cadena que representa el lexema:
+    strcpy(nuevo->lexema, lexema);
+
+    // Insertamos el elemento en la tabla hash:
+    insertarEnTablaHash(&ts->tabla, nuevo->lexema, nuevo);
+
+}
+
+
+
+
+
+

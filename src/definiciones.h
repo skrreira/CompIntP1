@@ -30,6 +30,7 @@ junto a los valores que se le darán en la tabla de símbolos*/
 #define RETURN 323
 #define VAR 324
 
-//Hace falta poner el valor del IDENTIFICADOR aqui?
+// Definimos valor del token_identificador:
+#define TOKEN_IDENTIFICADOR 325
 
 #endif //DEFINICIONES_H

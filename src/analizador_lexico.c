@@ -20,7 +20,7 @@ int inicializar_analizador_lexico(FILE* codigo_fuente_arg){ //Devolverá 1 si ha
 
     // Inicializaremos la Tabla de Símbolos:
     TablaSimbolos ts;
-    inicializarTablaSimbolos(&ts);
+    inicializarTS(&ts);
 
     // Información:
     printf("\nAnalizador léxico inicializado correctamente\n");
