@@ -37,24 +37,43 @@ static const PalabraReservada palabrasReservadas[] = {
     {"var", VAR}
 };
 
+// Función que calcula el número de palabras reservadas del array (cuenta los elementos):
+static const int NUM_PALABRAS_RESERVADAS = sizeof(palabrasReservadas) / sizeof(palabrasReservadas[0]);
+
 // 1. Inicializa la tabla de símbolos y añade las keywords de Go.
 void inicializarTablaSimbolos(TablaSimbolos *ts){
 
     // Inicializamos Tabla Hash
     inicializarTablaHash(&ts->tabla);
+    printf("Estructura de datos de la tabla de símbolos inicializada.\n\n");
 
-    // Cargamos palabras reservadas => OJO, PREGUNTAR EN CLASE
-    void cargarPalabrasReservadas(TablaSimbolos *ts) {
-        for (int i = 0; i < NUM_PALABRAS_RESERVADAS; i++) { //VER DE DÓNDE SE SACA
-            ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
-            nuevo->token = palabrasReservadas[i].token;
-            strcpy(nuevo->lexema, palabrasReservadas[i].lexema);
-            insertarEnTablaHash(&ts->tabla, nuevo->lexema, nuevo);
-        }
-    }
-
-
+    // Cargamos palabras reservadas en la tabla de símbolos:
+    cargarPalabrasReservadas(&ts);
+    
+    // Información:
+    printf("Tabla de símbolos correctamente inicializada.\n\n");
 
 }
 
 // Función privada para precargar las palabras reservadas de Go utilizando el array de Strings:
+// Cargamos palabras reservadas => OJO, PREGUNTAR EN CLASE
+void cargarPalabrasReservadas(TablaSimbolos *ts) {
+
+    // Iteramos una vez por cada "keyword" del array:
+    for (int i = 0; i < NUM_PALABRAS_RESERVADAS; i++) { 
+
+        // Reservamos memoria para guardar un nuevo elemento tipo "ComponenteLexico":
+        ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
+
+        // Copiamos el valor del token del array de Strings al nuevo elemento:
+        nuevo->token = palabrasReservadas[i].token;
+
+        // Ídem con la cadena que representa el lexema:
+        strcpy(nuevo->lexema, palabrasReservadas[i].lexema);
+
+        // Insertamos el elemento en la tabla hash:
+        insertarEnTablaHash(&ts->tabla, nuevo->lexema, nuevo); //lexema es la clave, nuevo es el ComponenteLExico
+    }
+}
+
+// 2. Inserta un nuevo <token, lexema> en la tabla de símbolos.

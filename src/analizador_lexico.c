@@ -35,6 +35,16 @@ ComponenteLexico siguienteComponenteLexico(){
 
     // POR HACER
 
+    // AQUI SE NECESITA EL codigo_fuente
+
+    // autómata de reconocimiento de lexemas
+
+    // cuando se reconoce lexema, llamada a TS:
+        // se busca (función buscar)
+        // si devuelve un valor, se manda tupla <valor, lexema>
+        // si devuelve null, se manda tupla <valor_identificador, lexema>
+            // se inserta tupla en la TS (función insertar)
+
 
     return componenteLexico;
 };
