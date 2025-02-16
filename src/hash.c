@@ -64,7 +64,7 @@ void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor) {
  * Busca una clave en la tabla hash y devuelve el valor asociado.
  * Devuelve NULL si la clave no está en la tabla.
  */
-void *buscarEnTablaHash(TablaHash *tabla, const char *clave) {
+ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave) {
     EntradaHash *entrada;
 
     /*

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../libs/uthash.h" // Librería uthash.h ubicada en la carpeta libs
+#include "analizador_lexico.h"
 
 /**
  * Utilizamos la librería open-source uthash.h para implementar la tabla hash.
@@ -48,7 +49,7 @@ void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor);
  * @param clave Cadena que representa la clave.
  * @return Puntero al valor asociado o NULL si no se encuentra.
  */
-void *buscarEnTablaHash(TablaHash *tabla, const char *clave);
+ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave);
 
 /**
  * Elimina una clave y su valor asociado de la tabla hash. Realmente no hace falta.

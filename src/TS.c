@@ -2,6 +2,9 @@
 #include "definiciones.h"
 #include "hash.h"
 
+// Define
+#define TOKEN_NO_ENCONTRADO -1
+
 // Struct
 typedef struct {
     const char* lexema;
@@ -94,6 +97,30 @@ void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya 
 
 }
 
+// 3. Busca un lexema en la tabla de símbolos. Devuelve el token si lo encuentra, o -1 si no.
+int buscarEnTablaSimbolos(TablaSimbolos *ts, const char *lexema){
+
+    // Llamamos a la función para buscar en la tabla hash:
+    ComponenteLexico *resultado = NULL;
+    resultado = buscarEnTablaHash(&ts->tabla, lexema); // devuelve NULL si no lo encuentra.
+
+    // Si el token de resultado es NULL, devolvemos -1 (TOKEN_NO_ENCONTRADO)
+    if (resultado == NULL) return TOKEN_NO_ENCONTRADO;
+
+    // Si se ha encontrado (!=NULL) devuelve el valor del token:
+    return resultado->token;
+
+}
+
+// 4. Libera toda la memoria de la tabla de símbolos.
+void liberarTablaSimbolos(TablaSimbolos *ts){
+
+    //TODO: FALTA LIBERAR CADA UNO DE LOS COMPONENTES LEXICOS => LO HARA HASH.C
+
+    // Llamamos a liberar tabla hash:
+    liberarTablaHash(&ts->tabla);
+
+}
 
 
 
