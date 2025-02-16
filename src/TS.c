@@ -120,6 +120,14 @@ void liberarTablaSimbolos(TablaSimbolos *ts){
 
 }
 
+// 5. (Para debug) Imprime toda la tabla de símbolos.
+void imprimirTablaSimbolos(TablaSimbolos *ts){
+
+    // Llamamos a imprimir tablaHash:
+    imprimirTablaHash(&ts->tabla);
+
+}
+
 
 
 
