@@ -115,12 +115,11 @@ int buscarEnTablaSimbolos(TablaSimbolos *ts, const char *lexema){
 // 4. Libera toda la memoria de la tabla de símbolos.
 void liberarTablaSimbolos(TablaSimbolos *ts){
 
-    //TODO: FALTA LIBERAR CADA UNO DE LOS COMPONENTES LEXICOS => LO HARA HASH.C
-
-    // Llamamos a liberar tabla hash:
+    // Llamamos a liberar tabla hash: liberará tambien la memoria de cada uno de los ComponentesLexicos:
     liberarTablaHash(&ts->tabla);
 
 }
+
 
 
 

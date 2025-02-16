@@ -18,8 +18,8 @@
 // Clave: cadena de caracteres (máx 64), Valor: puntero genérico.
 typedef struct {
     char clave[64];      // Clave que usaremos como identificador en la tabla hash.
-    void *valor;         // Valor asociado a la clave. Puede ser cualquier tipo de dato.
-    UT_hash_handle hh;   // Macro interna de uthash. Necesario para la gestión de la tabla hash.
+    ComponenteLexico *valor;         // Valor asociado. Puntero a ComponenteLexico.
+    UT_hash_handle hh;   // Macro interna de uthash. Necesaria para la gestión de la tabla hash.
 } EntradaHash;
 
 // Definimos un puntero a la tabla hash (uthash trabaja con punteros a structs).

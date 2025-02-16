@@ -123,8 +123,12 @@ void liberarTablaHash(TablaHash *tabla) {
      * - tmp: puntero temporal usado internamente para evitar problemas al eliminar
      */
     HASH_ITER(hh, *tabla, entrada, tmp) {
+
         // Eliminamos la entrada de la tabla
         HASH_DEL(*tabla, entrada);
+
+        // Liberamos el ComponenteLexico*
+        free(entrada->valor);
 
         // Liberamos la memoria de la entrada
         free(entrada);
