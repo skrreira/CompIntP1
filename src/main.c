@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "analizador_lexico.h"
 #include "analizador_sintactico.h"
+#include "TS.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -28,9 +29,12 @@ int main(int argc, char* argv[]){
     }
     printf("\nArchivo abierto correctamente.\n");
 
+    // Inicializamos la tabla de símbolos:
+    TablaSimbolos ts;
+    inicializarTS(&ts);
+
     // Inicializar analizador léxico y estructuras de datos (constructor). Le pasamos el documento
-    inicializar_analizador_lexico(codigo_fuente); //GESTIÓN DE ERRORES?
-    // La TS (y a su vez la hash) se inicializan tb con la función de arriba.
+    inicializar_analizador_lexico(codigo_fuente, &ts); //GESTIÓN DE ERRORES?
 
     // Iniciar definitivamente el analizador sintáctico -> llamara al léxico
     iniciar_analizador_sintactico(); //GESTIÓN DE ERRORES? No necesita argumento

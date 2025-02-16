@@ -13,16 +13,12 @@ int contador_debug = 0;
 const char* lexemas_debug[MAX_LEXEMA] = {"Lexema1", "Lexema2", "Antes_de_eof", "eof"};
 
 // Función para inicializar el analizador léxico: será llamada desde main:
-int inicializar_analizador_lexico(FILE* codigo_fuente_arg){ //Devolverá 1 si hay errores.
-
+int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts){ 
+    
     // Asignar puntero a FILE a la variable global para usar en "siguienteComponenteLexico()""
     codigo_fuente = codigo_fuente_arg;
 
-    // Inicializaremos la Tabla de Símbolos:
-    TablaSimbolos ts;
-    inicializarTS(&ts);
-
-    // Información:
+    // Información: la TS se inicializa desde el main (asegura que se puede acceder desde cualquier parte):
     printf("\nAnalizador léxico inicializado correctamente\n");
 
     return 0;

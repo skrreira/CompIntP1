@@ -14,7 +14,7 @@ typedef struct{
 } ComponenteLexico;
 
 // Función para inicializar el analizador léxico: será llamada desde main:
-int inicializar_analizador_lexico(FILE* codigo_fuente); //Devolverá 1 si hay errores.
+int inicializar_analizador_lexico(FILE* codigo_fuente, TablaSimbolos *ts); //Devolverá 1 si hay errores.
 
 // Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico();
