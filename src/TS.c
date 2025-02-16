@@ -43,6 +43,9 @@ static const PalabraReservada palabrasReservadas[] = {
 // Función que calcula el número de palabras reservadas del array (cuenta los elementos):
 static const int NUM_PALABRAS_RESERVADAS = sizeof(palabrasReservadas) / sizeof(palabrasReservadas[0]);
 
+// Prototipo función auxiliar (no se exporta)
+void cargarPalabrasReservadas(TablaSimbolos *ts);
+
 // 1. Inicializa la tabla de símbolos y añade las keywords de Go.
 void inicializarTS(TablaSimbolos *ts){
 
@@ -51,7 +54,7 @@ void inicializarTS(TablaSimbolos *ts){
     printf("Estructura de datos de la tabla de símbolos inicializada.\n\n");
 
     // Cargamos palabras reservadas en la tabla de símbolos:
-    cargarPalabrasReservadas(&ts);
+    cargarPalabrasReservadas(ts);
     
     // Información:
     printf("Tabla de símbolos correctamente inicializada.\n\n");
@@ -83,6 +86,15 @@ void cargarPalabrasReservadas(TablaSimbolos *ts) {
 // Sólo insertará identificadores, todas las 'keywords' son insertadas en inicialización.
 void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya que no va a ser modificado.
 
+    // Comprobamos si ya existe el identificador en la tabla Hash:
+    if (buscarEnTablaHash(&ts->tabla, lexema) != NULL) {
+        printf("[WARN] Identificador '%s' ya existe en la tabla de símbolos. No se inserta.\n", lexema);
+        return; 
+        /* Es solo una medida de seguridad; el encargado de comprobar que no se inserten 
+        repetidos va a ser el propio analizador léxico, ya que su función es insertar si
+        no se encuentra un valor para un lexema dado.*/
+    }
+
     // Reservamos memoria para almacenar un nuevo elemento tipo "ComponenteLexico"
     ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
 
@@ -98,7 +110,7 @@ void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya 
 }
 
 // 3. Busca un lexema en la tabla de símbolos. Devuelve el token si lo encuentra, o -1 si no.
-int buscarEnTablaSimbolos(TablaSimbolos *ts, const char *lexema){
+int buscarEnTS(TablaSimbolos *ts, const char *lexema){
 
     // Llamamos a la función para buscar en la tabla hash:
     ComponenteLexico *resultado = NULL;
@@ -113,7 +125,7 @@ int buscarEnTablaSimbolos(TablaSimbolos *ts, const char *lexema){
 }
 
 // 4. Libera toda la memoria de la tabla de símbolos.
-void liberarTablaSimbolos(TablaSimbolos *ts){
+void liberarTS(TablaSimbolos *ts){
 
     // Llamamos a liberar tabla hash: liberará tambien la memoria de cada uno de los ComponentesLexicos:
     liberarTablaHash(&ts->tabla);
@@ -121,7 +133,7 @@ void liberarTablaSimbolos(TablaSimbolos *ts){
 }
 
 // 5. (Para debug) Imprime toda la tabla de símbolos.
-void imprimirTablaSimbolos(TablaSimbolos *ts){
+void imprimirTS(TablaSimbolos *ts){
 
     // Llamamos a imprimir tablaHash:
     imprimirTablaHash(&ts->tabla);

@@ -19,12 +19,12 @@ void inicializarTS(TablaSimbolos *ts);
 void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema); //const ya que no va a ser modificado.
 
 // 3. Busca un lexema en la tabla de símbolos. Devuelve el token si lo encuentra, o -1 si no.
-int buscarEnTablaSimbolos(TablaSimbolos *ts, const char *lexema);
+int buscarEnTS(TablaSimbolos *ts, const char *lexema);
 
 // 4. Libera toda la memoria de la tabla de símbolos.
-void liberarTablaSimbolos(TablaSimbolos *ts);
+void liberarTS(TablaSimbolos *ts);
 
 // 5. (Para debug) Imprime toda la tabla de símbolos.
-void imprimirTablaSimbolos(TablaSimbolos *ts);
+void imprimirTS(TablaSimbolos *ts);
 
 #endif // TABLA_SIMBOLOS_H

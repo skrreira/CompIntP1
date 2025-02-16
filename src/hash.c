@@ -155,7 +155,7 @@ void imprimirTablaHash(TablaHash *tabla) {
 
     // Iteramos sobre todas las entradas de la tabla
     HASH_ITER(hh, *tabla, entrada, tmp) {
-        printf("Clave: %s, Valor (puntero): %p, Token: %d, Lexema: %s\n",
-             entrada->clave, entrada->valor, entrada->valor->token, entrada->valor->lexema);
+        printf("Clave: %s, <Token: %d, Lexema: %s>, Dirección: %p\n",
+             entrada->clave, entrada->valor->token, entrada->valor->lexema, entrada->valor);
     }
 }
