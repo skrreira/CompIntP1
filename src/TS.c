@@ -50,7 +50,7 @@ void cargarPalabrasReservadas(TablaSimbolos *ts);
 void inicializarTS(TablaSimbolos *ts){
 
     // Inicializamos Tabla Hash
-    inicializarTablaHash(&ts->tabla);
+    inicializarEstructuraDatos(&ts->tabla);
     printf("Estructura de datos de la tabla de símbolos inicializada.\n\n");
 
     // Cargamos palabras reservadas en la tabla de símbolos:
@@ -78,7 +78,7 @@ void cargarPalabrasReservadas(TablaSimbolos *ts) {
         strcpy(nuevo->lexema, palabrasReservadas[i].lexema);
 
         // Insertamos el elemento en la tabla hash:
-        insertarEnTablaHash(&ts->tabla, nuevo->lexema, nuevo); //lexema es la clave, nuevo es el ComponenteLExico
+        insertarEnEstructuraDatos(&ts->tabla, nuevo->lexema, nuevo); //lexema es la clave, nuevo es el ComponenteLExico
     }
 }
 
@@ -87,7 +87,7 @@ void cargarPalabrasReservadas(TablaSimbolos *ts) {
 void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya que no va a ser modificado.
 
     // Comprobamos si ya existe el identificador en la tabla Hash:
-    if (buscarEnTablaHash(&ts->tabla, lexema) != NULL) {
+    if (buscarEnEstructuraDatos(&ts->tabla, lexema) != NULL) {
         printf("[WARN] Identificador '%s' ya existe en la tabla de símbolos. No se inserta.\n", lexema);
         return; 
         /* Es solo una medida de seguridad; el encargado de comprobar que no se inserten 
@@ -105,7 +105,7 @@ void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya 
     strcpy(nuevo->lexema, lexema);
 
     // Insertamos el elemento en la tabla hash:
-    insertarEnTablaHash(&ts->tabla, nuevo->lexema, nuevo);
+    insertarEnEstructuraDatos(&ts->tabla, nuevo->lexema, nuevo);
 
 }
 
@@ -114,7 +114,7 @@ int buscarEnTS(TablaSimbolos *ts, const char *lexema){
 
     // Llamamos a la función para buscar en la tabla hash:
     ComponenteLexico *resultado = NULL;
-    resultado = buscarEnTablaHash(&ts->tabla, lexema); // devuelve NULL si no lo encuentra.
+    resultado = buscarEnEstructuraDatos(&ts->tabla, lexema); // devuelve NULL si no lo encuentra.
 
     // Si el token de resultado es NULL, devolvemos -1 (TOKEN_NO_ENCONTRADO)
     if (resultado == NULL) return TOKEN_NO_ENCONTRADO;
@@ -128,7 +128,7 @@ int buscarEnTS(TablaSimbolos *ts, const char *lexema){
 void liberarTS(TablaSimbolos *ts){
 
     // Llamamos a liberar tabla hash: liberará tambien la memoria de cada uno de los ComponentesLexicos:
-    liberarTablaHash(&ts->tabla);
+    liberarEstructuraDatos(&ts->tabla);
 
 }
 
@@ -136,7 +136,7 @@ void liberarTS(TablaSimbolos *ts){
 void imprimirTS(TablaSimbolos *ts){
 
     // Llamamos a imprimir tablaHash:
-    imprimirTablaHash(&ts->tabla);
+    imprimirEstructuraDatos(&ts->tabla);
 
 }
 

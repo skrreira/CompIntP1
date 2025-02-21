@@ -4,7 +4,7 @@ junto a los valores que se le darán en la tabla de símbolos*/
 #ifndef DEFINICIONES_H
 #define DEFINICIONES_H
 
-#define BREAK 300
+#define BREAK 300   //Explicar por que es 300
 #define DEFAULT 301
 #define FUNC 302
 #define INTERFACE 303

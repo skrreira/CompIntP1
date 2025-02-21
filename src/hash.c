@@ -9,7 +9,7 @@
  * de una lista enlazada hash interna gestionada por uthash.
  * Cuando la tabla está vacía, el puntero es NULL.
  */
-void inicializarTablaHash(TablaHash *tabla) {
+void inicializarEstructuraDatos(TablaHash *tabla) {
     *tabla = NULL; // Esto indica que la tabla está vacía
 }
 
@@ -17,7 +17,7 @@ void inicializarTablaHash(TablaHash *tabla) {
  * Inserta una clave y un valor en la tabla hash.
  * Si la clave ya existe, se actualiza el valor asociado.
  */
-void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor) {
+void insertarEstructuraDatos(TablaHash *tabla, const char *clave, void *valor) {
     EntradaHash *entrada;
 
     /*
@@ -64,7 +64,7 @@ void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor) {
  * Busca una clave en la tabla hash y devuelve el valor asociado.
  * Devuelve NULL si la clave no está en la tabla.
  */
-ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave) {
+ComponenteLexico *buscarEnEstructuraDatos(TablaHash *tabla, const char *clave) {
     EntradaHash *entrada;
 
     /*
@@ -85,7 +85,7 @@ ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave) {
 /*
  * Elimina una clave y su valor asociado de la tabla hash.
  */
-void eliminarDeTablaHash(TablaHash *tabla, const char *clave) {
+void eliminarDeEstructuraDatos(TablaHash *tabla, const char *clave) {
     EntradaHash *entrada;
 
     // Buscamos la clave en la tabla
@@ -110,7 +110,7 @@ void eliminarDeTablaHash(TablaHash *tabla, const char *clave) {
 /*
  * Libera toda la memoria ocupada por la tabla hash.
  */
-void liberarTablaHash(TablaHash *tabla) {
+void liberarEstructuraDatos(TablaHash *tabla) {
     EntradaHash *entrada, *tmp;
 
     /*
@@ -143,7 +143,7 @@ void liberarTablaHash(TablaHash *tabla) {
  * Nota: Solo imprime el puntero del valor. Si se almacenan valores
  * más complejos, el usuario debe interpretar el puntero correctamente.
  */
-void imprimirTablaHash(TablaHash *tabla) {
+void imprimirEstructuraDatos(TablaHash *tabla) {
     EntradaHash *entrada, *tmp;
 
     printf("Contenido de la tabla hash:\n");

@@ -32,6 +32,7 @@ int main(int argc, char* argv[]){
     // Inicializamos la tabla de símbolos:
     TablaSimbolos ts;
     inicializarTS(&ts);
+    imprimirTablaHash(&ts);
 
     // Inicializar analizador léxico y estructuras de datos (constructor). Le pasamos el documento
     inicializar_analizador_lexico(codigo_fuente, &ts); //GESTIÓN DE ERRORES?
@@ -40,6 +41,7 @@ int main(int argc, char* argv[]){
     iniciar_analizador_sintactico(); //GESTIÓN DE ERRORES? No necesita argumento
     
     // Liberamos recursos
+    //funciones para liberar cosas - VALGRIND para depurar
     fclose(codigo_fuente);
 
     return 0;
