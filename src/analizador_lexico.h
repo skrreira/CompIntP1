@@ -1,5 +1,6 @@
 #ifndef ANALIZADOR_LEXICO_H
 #define ANALIZADOR_LEXICO_H
+//HABRA QUE IMPORTAR EL SISTEMA DE ENTRADA:
 
 // Includes
 #include <stdio.h>

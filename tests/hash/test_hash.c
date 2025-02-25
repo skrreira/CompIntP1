@@ -7,22 +7,22 @@ int main() {
 
     // 1. Inicializar tabla
     printf("[DEBUG] Inicializando tabla hash...\n");
-    inicializarTablaHash(&tabla);
-    imprimirTablaHash(&tabla);
+    inicializarEstructuraDatos(&tabla);
+    imprimirEstructuraDatos(&tabla);
 
     // 2. Insertar algunos valores
     int valor1 = 42, valor2 = 84, valor3 = 126;
     printf("[DEBUG] Insertando clave1 -> 42\n");
-    insertarEnTablaHash(&tabla, "clave1", &valor1);
+    insertarEnEstructuraDatos(&tabla, "clave1", &valor1);
     printf("[DEBUG] Insertando clave2 -> 84\n");
-    insertarEnTablaHash(&tabla, "clave2", &valor2);
+    insertarEnEstructuraDatos(&tabla, "clave2", &valor2);
     printf("[DEBUG] Insertando clave3 -> 126\n");
-    insertarEnTablaHash(&tabla, "clave3", &valor3);
-    imprimirTablaHash(&tabla);
+    insertarEnEstructuraDatos(&tabla, "clave3", &valor3);
+    imprimirEstructuraDatos(&tabla);
 
     // 3. Buscar claves
     printf("[DEBUG] Buscando clave1...\n");
-    int *res1 = (int *)buscarEnTablaHash(&tabla, "clave1");
+    int *res1 = (int *)buscarEnEstructuraDatos(&tabla, "clave1");
     if (res1) {
         printf("clave1 encontrada, valor: %d\n", *res1);
     } else {
@@ -30,7 +30,7 @@ int main() {
     }
 
     printf("[DEBUG] Buscando clave_inexistente...\n");
-    int *res2 = (int *)buscarEnTablaHash(&tabla, "clave_inexistente");
+    int *res2 = (int *)buscarEnEstructuraDatos(&tabla, "clave_inexistente");
     if (res2) {
         printf("clave_inexistente encontrada, valor: %d\n", *res2);
     } else {
@@ -39,8 +39,8 @@ int main() {
 
     // 4. Liberar tabla
     printf("[DEBUG] Liberando tabla...\n");
-    liberarTablaHash(&tabla);
-    imprimirTablaHash(&tabla);
+    liberarEstructuraDatos(&tabla);
+    imprimirEstructuraDatos(&tabla);
 
     return 0;
 }

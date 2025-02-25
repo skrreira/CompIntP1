@@ -8,9 +8,31 @@
 // Variables globales
 FILE* codigo_fuente = NULL;
 
-/* DEBUG*/
-int contador_debug = 0;
-const char* lexemas_debug[MAX_LEXEMA] = {"Lexema1", "Lexema2", "Antes_de_eof", "eof"};
+// Función para determinar que hacer a partir del caracter inicial:
+int reconocer_caracter_inicial(char c){
+    
+    // 1º CASO: Letra o barra baja => IDENTIFICADOR
+
+
+    // 2º CASO: Número => NÚMEROS
+
+
+    // 3º CASO: Espacios en blanco y CR => Se avanza (no se llama a ningún autómata)
+
+
+    // 4º CASO: Fin de archivo => Se devuelve lexema y se manda código FINAL
+
+
+    // 5º CASO: Delimitadores (=operadores pero 1 char)=> Se devuelve con su codigo ASCII como token:
+
+
+    // 6º CASO: Operadores => OPERADORES => Puede llamar a FLOAT (caso ".123") y a COMENTARIOS (caso "//" y "/*")
+
+
+    // 7º CASO: Comillas => STRINGS => devuelve contenido entre comillas y TOKEN_STRING
+
+
+}
 
 // Función para inicializar el analizador léxico: será llamada desde main:
 int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts){ 
@@ -27,6 +49,7 @@ int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts){
 // Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico(){
 
+    // Inicializamos una variable de tipo "ComponenteLexico":
     ComponenteLexico componenteLexico = {0};
 
     // POR HACER
@@ -40,6 +63,13 @@ ComponenteLexico siguienteComponenteLexico(){
         // si devuelve un valor, se manda tupla <valor, lexema>
         // si devuelve null, se manda tupla <valor_identificador, lexema>
             // se inserta tupla en la TS (función insertar)
+
+
+
+
+
+
+
 
 
     return componenteLexico;

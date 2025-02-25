@@ -30,7 +30,7 @@ typedef EntradaHash *TablaHash;
  *
  * @param tabla Puntero a la tabla hash que será inicializada en NULL.
  */
-void inicializarTablaHash(TablaHash *tabla);
+void inicializarEstructuraDatos(TablaHash *tabla);
 
 /**
  * Inserta una clave y un valor en la tabla hash.
@@ -40,7 +40,7 @@ void inicializarTablaHash(TablaHash *tabla);
  * @param clave Cadena que representa la clave.
  * @param valor Puntero al valor asociado a la clave.
  */
-void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor);
+void insertarEnEstructuraDatos(TablaHash *tabla, const char *clave, void *valor);
 
 /**
  * Busca una clave en la tabla hash y devuelve el valor asociado.
@@ -49,7 +49,7 @@ void insertarEnTablaHash(TablaHash *tabla, const char *clave, void *valor);
  * @param clave Cadena que representa la clave.
  * @return Puntero al valor asociado o NULL si no se encuentra.
  */
-ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave);
+ComponenteLexico *buscarEnEstructuraDatos(TablaHash *tabla, const char *clave);
 
 /**
  * Elimina una clave y su valor asociado de la tabla hash. Realmente no hace falta.
@@ -57,14 +57,14 @@ ComponenteLexico *buscarEnTablaHash(TablaHash *tabla, const char *clave);
  * @param tabla Puntero a la tabla hash.
  * @param clave Cadena que representa la clave.
  */
-void eliminarDeTablaHash(TablaHash *tabla, const char *clave);
+void eliminarDeEstructuraDatos(TablaHash *tabla, const char *clave);
 
 /**
  * Libera toda la memoria ocupada por la tabla hash.
  *
  * @param tabla Puntero a la tabla hash.
  */
-void liberarTablaHash(TablaHash *tabla);
+void liberarEstructuraDatos(TablaHash *tabla);
 
 /**
  * Imprime todas las claves y valores de la tabla hash.
@@ -73,7 +73,7 @@ void liberarTablaHash(TablaHash *tabla);
  *
  * @param tabla Puntero a la tabla hash.
  */
-void imprimirTablaHash(TablaHash *tabla);
+void imprimirEstructuraDatos(TablaHash *tabla);
 
 
 
