@@ -4,6 +4,7 @@
 #include "analizador_lexico.h" // El tipo de datos "ComponenteLexico" viene del archivo .h
 #include <string.h>
 #include "TS.h"
+#include <ctype.h>
 
 // Variables globales
 FILE* codigo_fuente = NULL;
@@ -11,26 +12,27 @@ FILE* codigo_fuente = NULL;
 // Función para determinar que hacer a partir del caracter inicial:
 int reconocer_caracter_inicial(char c){
     
-    // 1º CASO: Letra o barra baja => IDENTIFICADOR
-
+    // 1º CASO: Letra o barra baja => IDENTIFICADOR o "_" (caracter especial)
+    if (isalpha(c) || c == '_') { return 1; }
 
     // 2º CASO: Número => NÚMEROS
-
+    else if (isdigit(c)) { return 2; }
 
     // 3º CASO: Espacios en blanco y CR => Se avanza (no se llama a ningún autómata)
-
+    else if (c == ' ' || c == '/t' || c == '/r' || c == '/n') { return 3; }
 
     // 4º CASO: Fin de archivo => Se devuelve lexema y se manda código FINAL
+    else if (c == EOF) { return 4; }
 
-
-    // 5º CASO: Delimitadores (=operadores pero 1 char)=> Se devuelve con su codigo ASCII como token:
-
+    // 5º CASO: Delimitadores => Se devuelve con su codigo ASCII como token
+    else if (c == ',' || c == ';' || c == ':' || c == '(' || c == ')' ||
+    c == '{' || c == '}' || c == '[' || c == ']') { return 5; }
 
     // 6º CASO: Operadores => OPERADORES => Puede llamar a FLOAT (caso ".123") y a COMENTARIOS (caso "//" y "/*")
-
+    else if (c == '=' || c == '+' || c == '>' || c == '.' || c == '/' || c == ':') { return 6; }
 
     // 7º CASO: Comillas => STRINGS => devuelve contenido entre comillas y TOKEN_STRING
-
+    else if (c == '\'' || c == '\"') { return 7; }
 
 }
 
