@@ -11,18 +11,19 @@
 #define EOF_SIMULADO '\0' // Representación interna de EOF
 
 // Estructura
-struct sistema_entrada
+typedef struct SistemaEntrada
 {
     char buffer[TAM_TOTAL_BUFFER];
 
-    int inicio = 0;
-    int delantero = 0;
+    int inicio;
+    int delantero;
     // BUFFER ACTUAL?
 
-    int cuenta_longitud_lexema = 0; // Debe ser menor a TAM_BLOQUE
+    int cuenta_longitud_lexema; // Debe ser menor a TAM_BLOQUE
 
-    FILE* codigo_fuente = null;
-};
+    FILE* codigo_fuente;
+} 
+SistemaEntrada;
 
 
 // Funciones de inicialización y cierre:
