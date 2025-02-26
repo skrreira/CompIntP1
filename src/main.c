@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
     // Inicializamos la tabla de símbolos:
     TablaSimbolos ts;
     inicializarTS(&ts);
-    imprimirTablaHash(&ts);
+    imprimirEstructuraDatos(&ts);
 
     // Inicializar analizador léxico y estructuras de datos (constructor). Le pasamos el documento
     inicializar_analizador_lexico(codigo_fuente, &ts); //GESTIÓN DE ERRORES?
@@ -40,6 +40,9 @@ int main(int argc, char* argv[]){
     // Iniciar definitivamente el analizador sintáctico -> llamara al léxico
     iniciar_analizador_sintactico(); //GESTIÓN DE ERRORES? No necesita argumento
     
+    // Una vez terminado el análisis sintáctico, volvemos a imprimir la tabla de símbolos:
+    imprimirEstructuraDatos(&ts);
+
     // Liberamos recursos
     //funciones para liberar cosas - VALGRIND para depurar
     fclose(codigo_fuente);

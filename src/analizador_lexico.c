@@ -12,10 +12,26 @@ FILE* codigo_fuente = NULL;
 // Prototipado de las funciones de los autómatas de cada tipo de componente léxico:
 void automata_identificador();
 void automata_numeros();
-//automatas para cada tipo de números?
 void automata_operadores();
 void automata_comentarios();
 void automata_string();
+
+// Sub-Autómatas encargados del reconocimiento de números:
+
+// ENTEROS:
+void automata_decimal();
+void automata_binario();
+void automata_octal(); // 014 es octal
+void automata_hex();
+
+// PUNTO FLOTANTE:
+void automata_decimal_float();
+void automata_binario_float();
+void automata_octal_float();
+void automata_hex_float();
+
+// IMAGINARIO: solo procesa una i => Añadimos por legibilidad
+void automata_imaginario();
 
 
 // Función para determinar que hacer a partir del caracter inicial:
@@ -150,7 +166,7 @@ ComponenteLexico siguienteComponenteLexico(){
     return componenteLexico;
 };
 
-// Función que implementa el autómata encargado de reconocer los identificadores:
+// Función que implementa el autómata encargado de reconocer los identificadores y keywords:
 void automata_identificador(){
 
     // Variable de parada:
@@ -161,13 +177,84 @@ void automata_identificador(){
         // char c = siguiente char //TABLA SIMBOLOS
         char c;
 
+
+        // Si tenemos una '_' inicial y aparece otra '_', lanzamos error.
+
         // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero.
-        if(!(isalnum(c) || c != '_'))
+        if(!(isalnum(c) || c != '_')){
+            
+            stop = 1;
+            //retroceder()
 
-        //AL ACABAR -> funcion auxiliar: get_lexema de sistema de entrada + función para buscar identificador en TS
-
+            //AL ACABAR -> funcion auxiliar: get_lexema de sistema de entrada + función para buscar identificador en TS
+            // mandar_comp_lexico_TS() - COMPROBAMOS SI MANDAMOS EL LEXEMA '_' -> LO HACE TS
+        }
     }
 }
+
+// Función que implementa el autómata encargado de reconocer los números:
+void automata_numeros(){
+
+    
+    // char c = siguiente char //SISTEMA ENTRADA
+    char c;
+
+    // Categorizamos el char y lo mandamos al responsable:
+
+    // Caso dónde el char es un '0':
+    if(c == '0'){
+
+        //if (char c+1 == b || c+1 == B)
+        automata_binario();
+
+        //if (char c+1 == o || c+1 == O || isdigit(c+1))
+        automata_octal();
+
+        //if (char c+1 == x || c+1 == X)
+        automata_hex();
+
+    }
+
+    // Caso donde el char es un número != '0'
+    else if(isdigit(c) && (c != '0')){
+
+        // El encargado será el autómata para los decimales:
+        automata_decimal();
+
+    }
+
+    // Caso donde el char es un punto ('.'):
+    else if(c == '.'){
+
+        // El encargado será el autómata de los números en punto flotante: ????
+        automata_decimal_float();
+
+    }
+
+    // Si el primer char no es un número o un punto
+    else{
+        
+        //retroceder()
+
+        //GET_LEXEMA
+        //devolver COMP_LEXICO?
+        //LANZAR ERROR
+    }
+
+
+    
+
+
+
+
+
+}
+
+
+
+
+
+
 
 /*
 EL RESTO DEL CÓDIGO ES IGUAL: hay que echarle horas. Antes de ponernos, casi vamos a implementar

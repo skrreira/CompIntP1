@@ -53,6 +53,7 @@ int iniciar_analizador_sintactico(){ //No necesita referencia al fichero => se l
 
     // Informamos de que ha finalizado el analizador:
     printf("\nAnálisis finalizado\n");
+    
     return 0;
 
 }
