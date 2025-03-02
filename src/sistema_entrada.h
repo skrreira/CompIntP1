@@ -32,6 +32,7 @@ void cerrar_sistema_entrada();
 
 // Lectura caracter y retroceso puntero delantero:
 char siguiente_caracter();
+void casos_centinela_avanzar_puntero_delantero();
 void retroceder_puntero_delantero();
 void avanzar_puntero_inico();
 
