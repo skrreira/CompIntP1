@@ -32,7 +32,8 @@ void cerrar_sistema_entrada();
 
 // Lectura caracter y retroceso puntero delantero:
 char siguiente_caracter();
-void retroceder_puntero();
+void retroceder_puntero_delantero();
+void avanzar_puntero_inico();
 
 // Manejo de buffers y EOF
 void cargar_buffer(int num_buffer);
