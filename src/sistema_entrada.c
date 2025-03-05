@@ -190,7 +190,7 @@ void imprimir_buffer();
 
 
 
-
+x
 
 // que es carga?
 
