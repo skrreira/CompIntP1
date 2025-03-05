@@ -38,10 +38,10 @@ void avanzar_puntero_inico();
 
 // Manejo de buffers y EOF
 void cargar_buffer(int num_buffer);
-int manejar_eof();
 
 // Devolver lexema completo a analizador léxico
 char* obtener_lexema();
+void saltar_lexema();
 
 // Función para debug:
 void imprimir_buffer();

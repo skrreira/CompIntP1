@@ -61,7 +61,7 @@ char siguiente_caracter(){
     return c;
 }
 
-// Función para avanzar el puntero delantero una posición: gestiona casos especiales (cargar bloques):
+// Función para avanzar el puntero delantero una posición: gestiona casos especiales (carga bloques):
 void casos_centinela_avanzar_puntero_delantero(){
 
     // Antes de avanzar, gestionamos casos especiales:
@@ -109,14 +109,77 @@ void retroceder_puntero_delantero(){
     // Resto de casos (casos normales):
     se->delantero--;                
 }
+
+// Función para avanzar el puntero inicio una posición: gestiona casos especiales (sin cargar bloques)
 void avanzar_puntero_inicio(){               // LA USAMOS para GET LEXEMA => avanzamos puntero inicio hasta final
-    se->inicio++;                           //CUIDADO CON LOS CASOS DE EOF
+    
+    // Caso dónde inicio esté en la posición anterior al centinela de A:
+    if (se->inicio == MITAD_BUFFER - 1){
+        se->inicio = MITAD_BUFFER + 1;
+        return;
+    }
+
+    // Caso dónde inicio esté en la posición anterior al centinela de A:
+    if (se->inicio == TAM_TOTAL_BUFFER - 2){
+        se->inicio = 0;
+        return;
+    }
+    
+    // Resto de casos:
+    se->inicio++;                           
 }
 
+// Función que hace que puntero inicio se iguale con el puntero delantero => no necesitamos recuperar el lexema
+void saltar_lexema(){
+
+    // Igualamos inicio con delantero (delantero apuntará al caracter siguiente al último del comentario)
+    se->inicio = se->delantero;
+
+    //hay un problema, cuando delantero apunta al centinela, se mueve en
+    //el siguiente "siguienteCaracter", por lo que si igualamos inicio, 
+    // es posible que inicio se iguale a delantero cuando todavia esta en
+    // el eof (centinela). Hay que gestionar este error, aunque vamos a tener 
+    // casos donde inicio va a ir delante de delantero por un momento (hasta
+    // la siguiente llamada a "siguienteCaracter")
+
+    // Casos especiales:
+    if (se->inicio == MITAD_BUFFER) {se->inicio = MITAD_BUFFER + 1; return;}
+    else if (se->inicio == TAM_TOTAL_BUFFER - 1) {se->inicio = 0; return; }
+}
 
 // Función para cargar buffer:
-void cargar_buffer(int num_buffer);
-int manejar_eof();
+void cargar_buffer(int num_buffer){
+
+    // Si "num_buffer" = 0, cargamos bloque A, si es = 1, cargamos bloque B.
+
+    // Bloque A:
+    if (num_buffer == 0){
+
+        // Borramos los datos residuales antes de cargar nuevos datos:
+        memset(se->buffer, 0, TAM_BLOQUE);
+
+        // Cargamos los nuevos datos utilizando fread():
+        fread(&se->buffer[0], TAM_BLOQUE, 1, se->codigo_fuente);
+
+    }
+
+    // Bloque B:
+    else if (num_buffer == 1){
+
+        // Borramos los datos residuales antes de cargar nuevos datos:
+        memset(se->buffer + MITAD_BUFFER + 1, 0, TAM_BLOQUE);
+
+        // Cargamos los nuevos datos utilizando fread():
+        fread(&se->buffer[0], TAM_BLOQUE, 1, se->codigo_fuente);
+
+    }
+
+    // Caso error:
+    else {
+        // ERROR
+    }
+
+}
 
 // Devolver lexema completo a analizador léxico
 char* obtener_lexema();
@@ -125,6 +188,11 @@ char* obtener_lexema();
 void imprimir_buffer();
 
 
+
+
+
+
+// que es carga?
 
 
 // NOTA: CON UN Poco de caña y atención a los casos especiales, esto se saca solo.
