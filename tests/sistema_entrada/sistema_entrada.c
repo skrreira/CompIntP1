@@ -6,7 +6,7 @@
 #include "errores/errores.h"
 
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
-static SistemaEntrada *se = NULL;
+extern SistemaEntrada *se = NULL; //debug, quitar extern
 static int no_cargar_bloque_flag = 0;
 
 // Función de inicialización:
@@ -299,4 +299,5 @@ void imprimir_buffer(){
     printf(" }\n");
 
 }
+
 
