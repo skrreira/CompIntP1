@@ -17,9 +17,8 @@ typedef struct SistemaEntrada
 
     int inicio;
     int delantero;
-    // BUFFER ACTUAL?
 
-    int cuenta_longitud_lexema; // Debe ser menor a TAM_BLOQUE
+    int flag_veces_buffer_cargado; // Esta flag servirá para saber si ha entrado un lexema demasiado grande.
 
     FILE* codigo_fuente;
 } 

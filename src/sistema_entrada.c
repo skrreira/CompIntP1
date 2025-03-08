@@ -20,8 +20,12 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
     // Inicializamos los campos => BUFFER se inicializa solo 
     se->inicio = 0;
     se->delantero = 0;
-    se->cuenta_longitud_lexema = 0;
+    se->flag_veces_buffer_cargado = 0;
     se->codigo_fuente = codigo_fuente;
+
+    // Asignamos un -1 a los posiciones centinela (CLARIDAD)
+    se->buffer[MITAD_BUFFER] = -1;
+    se->buffer[TAM_TOTAL_BUFFER - 1] = -1;
 
     // Cargamos sólamente el primer bloque (mejor que cargar ambos):
     cargar_buffer(0);
@@ -182,15 +186,85 @@ void cargar_buffer(int num_buffer){
 }
 
 // Devolver lexema completo a analizador léxico
-char* obtener_lexema();
+char* obtener_lexema(){
+    
+    char* lexema = NULL;
+    int longitud = 0, inicio = se->inicio, delantero = se->delantero;
+
+    // Error: lexema demasiado grande para el buffer
+    if (se->flag_veces_buffer_cargado > 1) { 
+        /*
+        ERROR_LEXEMA_EN_BUFFER();
+        inicio = (delantero > MEDIO) ? MEDIO + 1 : 0;
+        longitud = delantero - inicio;
+        */
+    }
+
+    // Caso en el que inicio y delantero están en la misma mitad del buffer
+    else if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
+        longitud = delantero - inicio;
+    }
+
+    // Caso en el que inicio y delantero están en mitades opuestas (cruce de buffers)
+    else {
+        if (delantero > MITAD_BUFFER) { // Cruza desde buffer A a B
+            longitud = (MITAD_BUFFER - inicio - 1) + (delantero - (MITAD_BUFFER));
+        } else { // Cruza desde buffer B a A
+            longitud = (TAM_TOTAL_BUFFER - 1 - inicio) + delantero; // Los -1, son para no contar centinelas.
+        }
+    }
+
+    // Reservamos memoria para el lexema
+    lexema = (char*)malloc((longitud + 1) * sizeof(char));
+    if (lexema == NULL) return NULL; // ERROR
+
+    // Copiar caracteres del buffer al lexema de manera eficiente
+    if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
+
+        // Caso donde todo el lexema está en una parte del buffer
+        memcpy(lexema, &se->buffer[inicio], longitud);
+
+    } else {
+
+        // Caso donde el lexema está dividido en dos mitades (doble buffer)
+        int primera_parte = (MITAD_BUFFER - 1 - inicio);
+        memcpy(lexema, &se->buffer[inicio], primera_parte);
+        memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], delantero - (MITAD_BUFFER));
+    }
+
+    lexema[longitud] = '\0'; // Agregar terminador de cadena
+
+    // Actualizar inicio del buffer
+    se->inicio = delantero;
+    se->flag_veces_buffer_cargado = 0;
+
+    return lexema;
+
+}
 
 // Función para debug:
-void imprimir_buffer();
+void imprimir_buffer(){
+    printf("\nBUFFER ACTUAL: {");
+
+    for(int i = 0; i < TAM_TOTAL_BUFFER; i++){
+
+        switch (se->buffer[i])
+        {
+        case '\n': printf("'\\n' | "); break;
+        case '\t': printf("'\\t' | "); break;
+        default: printf("%c | ", se->buffer[i]); break;
+        }
+
+    }
+
+    printf(" }\n");
+
+}
 
 
 
 
-x
+
 
 // que es carga?
 
