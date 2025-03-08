@@ -210,8 +210,8 @@ char* obtener_lexema(){
         if (delantero > MITAD_BUFFER) { // Cruza desde buffer A a B
             longitud = (MITAD_BUFFER - inicio - 1) + (delantero - (MITAD_BUFFER));
         } else { // Cruza desde buffer B a A
-            longitud = (TAM_TOTAL_BUFFER - 1 - inicio) + delantero; // Los -1, son para no contar centinelas.
-        }
+            longitud = (TAM_TOTAL_BUFFER - 1 - inicio) + delantero + 1; // Los -1, son para no contar centinelas.
+        } // añadir un +1?
     }
 
     // Reservamos memoria para el lexema
@@ -219,7 +219,8 @@ char* obtener_lexema(){
     if (lexema == NULL) return NULL; // ERROR
 
     // Copiar caracteres del buffer al lexema de manera eficiente
-    if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
+    if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) 
+    || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
 
         // Caso donde todo el lexema está en una parte del buffer
         memcpy(lexema, &se->buffer[inicio], longitud);
@@ -227,7 +228,7 @@ char* obtener_lexema(){
     } else {
 
         // Caso donde el lexema está dividido en dos mitades (doble buffer)
-        int primera_parte = (MITAD_BUFFER - 1 - inicio);
+        int primera_parte = (TAM_TOTAL_BUFFER - 1 - inicio);
         memcpy(lexema, &se->buffer[inicio], primera_parte);
         memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], delantero - (MITAD_BUFFER));
     }
