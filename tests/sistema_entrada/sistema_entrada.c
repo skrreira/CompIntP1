@@ -113,8 +113,8 @@ void retroceder_puntero_delantero(){
     }
 
     // Caso dónde estamos en el inicio del bloque B (saltamos EOF de A):
-    if (se->delantero == MITAD_BUFFER + 1){
-        se->delantero = MITAD_BUFFER - 1;
+    if (se->delantero == MITAD_BUFFER){
+        se->delantero = MITAD_BUFFER - 2;
         no_cargar_bloque_flag = 1;
         return;
     }
@@ -284,6 +284,7 @@ char* obtener_lexema(){
 
 }
 
+// FUnción para debug:
 void imprimir_buffer() {
     printf("\n=========== ESTADO ACTUAL DEL BUFFER ===========\n");
 

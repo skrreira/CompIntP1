@@ -57,7 +57,7 @@ void test_lectura_secuencial_archivo_entero(const char *archivo) {
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
-    printf("Leyendo caracteres secuencialmente:\nº");
+    printf("Leyendo caracteres secuencialmente:\n");
     char c;
     do{
         c = siguiente_caracter();
@@ -73,38 +73,167 @@ void test_lectura_secuencial_archivo_entero(const char *archivo) {
     //fclose(fp);
 }
 
-void test_retroceso_caracter(const char *archivo) {
+void test_retroceso_caracter_basico(const char *archivo) {
     printf("===== TEST RETROCESO PUNTERO DELANTERO ESTÁNDAR =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
+    printf("\nAvanzando 3 posiciones: \n");
     char c1 = siguiente_caracter();
     char c2 = siguiente_caracter();
-    retroceder_puntero_delantero();
     char c3 = siguiente_caracter();
-    
-    ASSERT(c2 == c3, "Retroceso de puntero delantero funciona correctamente");
-    
     imprimir_buffer();
+
+
+    printf("\n\nRetrocediendo 1 posicion: \n");
+    retroceder_puntero_delantero();
+    imprimir_buffer();
+    
+
+    char c4 = siguiente_caracter();
+    ASSERT(c4 == c3, "Retroceso de puntero delantero funciona correctamente");
+    
     cerrar_sistema_entrada();
     //fclose(fp);
 }
+
+/*
+void test_retroceso_caracter_avanzado(const char *archivo) {
+    printf("===== TEST RETROCESO PUNTERO DELANTERO ESTÁNDAR =====\n");
+    FILE *fp = fopen(archivo, "r");
+    inicializar_sistema_entrada(fp);
+
+    // Cargamos los dos bloques (el A ya va con la inicialización):
+    cargar_buffer(1);
+
+
+    // TEST INICIO DE B //
+    
+    // Movemos delantero justo al inicio de B:
+    printf("== Puntero delantero al inicio de B ==\n");
+    se->delantero = MITAD_BUFFER;
+    printf("\n\tCARACTER: %c", se->buffer[se->delantero]);
+
+    // Imprimimos estado actual
+    imprimir_buffer();
+
+    // Devolvemos puntero delantero: tiene que ir al char anterior al centinela de A.
+    retroceder_puntero_delantero();
+
+    // Imprimimos estado actual:
+    imprimir_buffer();
+
+    // Comprobamos que al avanzar delantero de nuevo funciona, y no carga bloque por la flag:
+    char c = siguiente_caracter();
+    
+    printf("\n\tCARACTER: %c", c);
+
+    char c2 = siguiente_caracter();
+    
+    printf("\n\tCARACTER: %c", c2);
+
+    // Imprimimos estado
+    imprimir_buffer();
+    
+
+    
+    // TEST INICIO DE B //
+    // Repetimos el mismo proceso, pero con delantero justo al inicio de A: el resto es igual
+    
+    // Movemos delantero justo al inicio de B:
+    printf("== Puntero delantero al inicio de A ==\n");
+    se->delantero = 0;
+    printf("\n\tCARACTER: %c", se->buffer[se->delantero]);
+
+    // Imprimimos estado actual
+    imprimir_buffer();
+
+    // Devolvemos puntero delantero: tiene que ir al char anterior al centinela de A.
+    retroceder_puntero_delantero();
+
+    // Imprimimos estado actual:
+    imprimir_buffer();
+
+    // Comprobamos que al avanzar delantero de nuevo funciona, y no carga bloque por la flag:
+    char c = siguiente_caracter();
+    
+    printf("\n\tCARACTER: %c", c);
+
+    char c2 = siguiente_caracter();
+    
+    printf("\n\tCARACTER: %c", c2);
+
+    // Imprimimos estado
+    imprimir_buffer();
+    
+
+    cerrar_sistema_entrada();
+    //fclose(fp);
+}
+*/
 
 void test_obtener_lexema(const char *archivo) {
     printf("===== TEST OBTENER LEXEMA =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
+    printf("\n\n == CASO AMBOS BLOQUE A ==\n");
+    se->inicio = 11;
+    se->delantero = 36;
+
     printf("Probando obtener lexema...\n");
-    char *lexema = obtener_lexema();
-    if (lexema) {
-        printf("Lexema obtenido: %s\n", lexema);
-        free(lexema);
+    char *lexema1 = obtener_lexema();
+    if (lexema1) {
+        printf("Lexema obtenido: %s\n", lexema1);
+        free(lexema1);
     } else {
         printf("Error obteniendo lexema\n");
     }
-    
     imprimir_buffer();
+
+    printf("\n\n== CASO AMBOS BLOQUE B ==\n");
+    se->inicio = MITAD_BUFFER + 5;
+    se->delantero = TAM_TOTAL_BUFFER - 35;
+
+    printf("Probando obtener lexema...\n");
+    char *lexema2 = obtener_lexema();
+    if (lexema2) {
+        printf("Lexema obtenido: %s\n", lexema2);
+        free(lexema2);
+    } else {
+        printf("Error obteniendo lexema\n");
+    }
+    imprimir_buffer();
+
+    printf("\n\n== CASO INICIO BLOQUE A DELANTERO BLOQUE B ==\n");
+    se->inicio = 5;
+    se->delantero = TAM_TOTAL_BUFFER - 35;
+
+    printf("Probando obtener lexema...\n");
+    char *lexema3 = obtener_lexema();
+    if (lexema3) {
+        printf("Lexema obtenido: %s\n", lexema3);
+        free(lexema3);
+    } else {
+        printf("Error obteniendo lexema\n");
+    }
+    imprimir_buffer();
+
+    printf("\n\n== CASO INICIO BLOQUE B DELANTERO BLOQUE A ==\n");
+    se->inicio = TAM_TOTAL_BUFFER - 35;
+    se->delantero = 5;
+
+    printf("Probando obtener lexema...\n");
+    char *lexema4 = obtener_lexema();
+    if (lexema4) {
+        printf("Lexema obtenido: %s\n", lexema4);
+        free(lexema4);
+    } else {
+        printf("Error obteniendo lexema\n");
+    }
+    imprimir_buffer();
+
+
     cerrar_sistema_entrada();
     //fclose(fp);
 }
@@ -165,10 +294,12 @@ int main() {
     //====== BÁSICOS ======//
     //test_inicializacion_y_cierre(archivo_prueba);             //DONE
     //test_lectura_secuencial(archivo_prueba);                  //DONE
-    test_lectura_secuencial_archivo_entero(archivo_prueba);   //DONE
+    //test_lectura_secuencial_archivo_entero(archivo_prueba);   //DONE
 
-    //test_retroceso_caracter(archivo_prueba);
-    //test_obtener_lexema(archivo_prueba);
+    //test_retroceso_caracter_basico(archivo_prueba);             //DONE
+    //test_retroceso_caracter_avanzado(archivo_prueba);           //DONE
+
+    test_obtener_lexema(archivo_prueba);
     //test_lexema_grande(archivo_prueba);
     //test_centinela_inicio_fin(archivo_prueba);
     //test_saltar_lexema(archivo_prueba);
