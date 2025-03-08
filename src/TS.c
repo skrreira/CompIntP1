@@ -1,6 +1,7 @@
 #include "TS.h"
 #include "definiciones.h"
 #include "hash.h"
+#include "errores/errores.h"
 
 // Define
 #define TOKEN_NO_ENCONTRADO -1

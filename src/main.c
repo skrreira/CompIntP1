@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "analizador_lexico.h"
 #include "analizador_sintactico.h"
+#include "errores/errores.h"
 #include "TS.h"
 
 #include <string.h>

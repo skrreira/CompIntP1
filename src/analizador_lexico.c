@@ -4,6 +4,7 @@
 #include "analizador_lexico.h" // El tipo de datos "ComponenteLexico" viene del archivo .h
 #include <string.h>
 #include "TS.h"
+#include "errores/errores.h"
 #include <ctype.h>
 
 // Variables globales

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "sistema_entrada.h"
+#include "errores/errores.h"
 
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
 static SistemaEntrada *se = NULL;
@@ -14,7 +15,9 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
 
     // Comprobamos si la asignación de memoria ha sido exitosa:
     if (!se){
-        // MANEJO ERROR
+        //ERROR
+        ERROR_GENERAL();
+        exit(1);
     }
 
     // Inicializamos los campos => BUFFER se inicializa solo 
@@ -38,7 +41,8 @@ void cerrar_sistema_entrada(){
     // Comprobamos que el struct tenga memoria reservada:
     if (!se){
         //ERROR
-        exit(0);
+        ERROR_GENERAL();
+        exit(1);
     }
 
     // Cerramos el puntero al codigo fuente:
@@ -149,6 +153,9 @@ void saltar_lexema(){
     // Casos especiales:
     if (se->inicio == MITAD_BUFFER) {se->inicio = MITAD_BUFFER + 1; return;}
     else if (se->inicio == TAM_TOTAL_BUFFER - 1) {se->inicio = 0; return; }
+
+    // Flag de cargar buffer a 0:
+    se->flag_veces_buffer_cargado = 0;
 }
 
 // Función para cargar buffer:
@@ -165,6 +172,9 @@ void cargar_buffer(int num_buffer){
         // Cargamos los nuevos datos utilizando fread():
         fread(&se->buffer[0], TAM_BLOQUE, 1, se->codigo_fuente);
 
+        // Aumentamos en 1 la cuenta de la flag de las cargas del buffer:
+        se->flag_veces_buffer_cargado++;
+
     }
 
     // Bloque B:
@@ -176,11 +186,16 @@ void cargar_buffer(int num_buffer){
         // Cargamos los nuevos datos utilizando fread():
         fread(&se->buffer[0], TAM_BLOQUE, 1, se->codigo_fuente);
 
+        // Aumentamos en 1 la cuenta de la flag de las cargas del buffer:
+        se->flag_veces_buffer_cargado++;
+        
     }
 
     // Caso error:
     else {
         // ERROR
+        ERROR_GENERAL();
+        exit(1);
     }
 
 }
@@ -191,13 +206,27 @@ char* obtener_lexema(){
     char* lexema = NULL;
     int longitud = 0, inicio = se->inicio, delantero = se->delantero;
 
+    // Variable para el caso de que el lexema sea demasiado grande:
+    int ind = 0;
+
     // Error: lexema demasiado grande para el buffer
     if (se->flag_veces_buffer_cargado > 1) { 
-        /*
-        ERROR_LEXEMA_EN_BUFFER();
-        inicio = (delantero > MEDIO) ? MEDIO + 1 : 0;
-        longitud = delantero - inicio;
-        */
+        
+        // ERROR
+        ERROR_GENERAL();
+        
+        // Aunque sea un error, devolvemos la parte final del lexema:
+        
+        // Determinamos que parte final recuperar:
+        if (delantero > MITAD_BUFFER - 1){
+            ind = MITAD_BUFFER;
+        }
+        else {
+            ind = 0;
+        }
+        longitud = delantero - ind;
+
+        // Más adelante, hacemos la asignación de memoria y copiamos el lexema, como si fuera un caso normal
     }
 
     // Caso en el que inicio y delantero están en la misma mitad del buffer
@@ -219,7 +248,14 @@ char* obtener_lexema(){
     if (lexema == NULL) return NULL; // ERROR
 
     // Copiar caracteres del buffer al lexema de manera eficiente
-    if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) 
+
+    // Caso error:
+    if (se->flag_veces_buffer_cargado > 1){
+        // Copiamos solo la parte final:
+        memcpy(lexema, &se->buffer[ind], longitud);
+    }
+
+    else if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) 
     || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
 
         // Caso donde todo el lexema está en una parte del buffer
