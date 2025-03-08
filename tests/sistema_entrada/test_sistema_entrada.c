@@ -7,20 +7,32 @@
     if (!(cond)) { printf("[ERROR] %s\n", msg); } else { printf("[OK] %s\n", msg); }
 
 void test_inicializacion_y_cierre(const char *archivo) {
+    printf("===== TEST INICIALIZACIÓN Y CIERRE =====\n");
     FILE *fp = fopen(archivo, "r");
     ASSERT(fp != NULL, "Archivo de prueba abierto correctamente");
     
     inicializar_sistema_entrada(fp);
     ASSERT(se != NULL, "Sistema de entrada inicializado correctamente");
-    
+
     imprimir_buffer();
+
+    printf("== CARGANDO BLOQUE B ==");
+    cargar_buffer(1);
+    imprimir_buffer();
+
+
+    printf("== CARGANDO BLOQUE A DE NUEVO ==");
+    cargar_buffer(0);
+    imprimir_buffer();
+
     cerrar_sistema_entrada();
     ASSERT(se == NULL, "Sistema de entrada cerrado correctamente");
     
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_lectura_secuencial(const char *archivo) {
+    printf("===== TEST LECTURA SECUENCIAL =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
@@ -32,11 +44,13 @@ void test_lectura_secuencial(const char *archivo) {
     printf("\n");
     
     imprimir_buffer();
+
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_retroceso_caracter(const char *archivo) {
+    printf("===== TEST RETROCESO PUNTERO DELANTERO ESTÁNDAR =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
@@ -49,10 +63,11 @@ void test_retroceso_caracter(const char *archivo) {
     
     imprimir_buffer();
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_obtener_lexema(const char *archivo) {
+    printf("===== TEST OBTENER LEXEMA =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
@@ -67,10 +82,11 @@ void test_obtener_lexema(const char *archivo) {
     
     imprimir_buffer();
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_lexema_grande(const char *archivo) {
+    printf("===== TEST LEXEMA DEMASIADO GRANDE =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
@@ -80,10 +96,11 @@ void test_lexema_grande(const char *archivo) {
     
     imprimir_buffer();
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_centinela_inicio_fin(const char *archivo) {
+    printf("===== TEST RETROCEDER PUNTERO DELANTERO EDGE CASES =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
@@ -97,12 +114,15 @@ void test_centinela_inicio_fin(const char *archivo) {
     
     imprimir_buffer();
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 void test_saltar_lexema(const char *archivo) {
+
+    printf("===== TEST SALTAR LEXEMA =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
+    
     
     printf("Probando saltar lexema...\n");
     se->delantero = MITAD_BUFFER;
@@ -111,21 +131,21 @@ void test_saltar_lexema(const char *archivo) {
     
     imprimir_buffer();
     cerrar_sistema_entrada();
-    fclose(fp);
+    //fclose(fp);
 }
 
 int main() {
-    const char *archivo_prueba = "prueba.txt";
+    const char *archivo_prueba = "concurrentSum.go";
     printf("===== INICIO DE PRUEBAS =====\n");
     
     test_inicializacion_y_cierre(archivo_prueba);
-    test_lectura_secuencial(archivo_prueba);
-    test_retroceso_caracter(archivo_prueba);
-    test_obtener_lexema(archivo_prueba);
-    test_lexema_grande(archivo_prueba);
-    test_centinela_inicio_fin(archivo_prueba);
-    test_saltar_lexema(archivo_prueba);
+    //test_lectura_secuencial(archivo_prueba);
+    //test_retroceso_caracter(archivo_prueba);
+    //test_obtener_lexema(archivo_prueba);
+    //test_lexema_grande(archivo_prueba);
+    //test_centinela_inicio_fin(archivo_prueba);
+    //test_saltar_lexema(archivo_prueba);
     
     printf("===== FIN DE PRUEBAS =====\n");
     return 0;
-}
+}   

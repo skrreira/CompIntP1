@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "sistema_entrada.h"
-#include "errores/errores.h"
+#include "../../src/errores/errores.h"
 
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
-extern SistemaEntrada *se = NULL; //debug, quitar extern
 static int no_cargar_bloque_flag = 0;
+
+SistemaEntrada *se;
 
 // Función de inicialización:
 void inicializar_sistema_entrada(FILE* codigo_fuente){
@@ -29,7 +30,7 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
     se->codigo_fuente = codigo_fuente;
 
     // Asignamos un -1 a los posiciones centinela (CLARIDAD)
-    se->buffer[MITAD_BUFFER] = -1;
+    se->buffer[MITAD_BUFFER - 1] = -1; //CORRECCIÓN
     se->buffer[TAM_TOTAL_BUFFER - 1] = -1;
 
     // Cargamos sólamente el primer bloque (mejor que cargar ambos):
@@ -47,12 +48,14 @@ void cerrar_sistema_entrada(){
         exit(1);
     }
 
+    
     // Cerramos el puntero al codigo fuente:
+    else{
     fclose(se->codigo_fuente);
 
     // Liberamos la memoria ocupada por el struct:
     free(se);    
-
+    }   
 }
 
 // Lectura caracter y retroceso puntero delantero:              // HACER DESPUÉS DE CARGAR BUFFER
@@ -183,10 +186,10 @@ void cargar_buffer(int num_buffer){
     else if (num_buffer == 1){
 
         // Borramos los datos residuales antes de cargar nuevos datos:
-        memset(se->buffer + MITAD_BUFFER, 0, TAM_BLOQUE);   //quitamos el +1?
+        memset(&se->buffer[MITAD_BUFFER], 0, TAM_BLOQUE);   //quitamos el +1?
 
         // Cargamos los nuevos datos utilizando fread():
-        fread(&se->buffer + MITAD_BUFFER, TAM_BLOQUE, 1, se->codigo_fuente);
+        fread(&se->buffer[MITAD_BUFFER], TAM_BLOQUE, 1, se->codigo_fuente);
 
         // Aumentamos en 1 la cuenta de la flag de las cargas del buffer:
         se->flag_veces_buffer_cargado++;
@@ -281,23 +284,39 @@ char* obtener_lexema(){
 
 }
 
-// Función para debug:
-void imprimir_buffer(){
-    printf("\nBUFFER ACTUAL: {");
+void imprimir_buffer() {
+    printf("\n=========== ESTADO ACTUAL DEL BUFFER ===========\n");
 
-    for(int i = 0; i < TAM_TOTAL_BUFFER; i++){
 
-        switch (se->buffer[i])
-        {
-        case '\n': printf("'\\n' | "); break;
-        case '\t': printf("'\\t' | "); break;
-        default: printf("%c | ", se->buffer[i]); break;
+    // Separador de buffer A y B
+    printf("\nBuffer:    ");
+    for (int i = 0; i < TAM_TOTAL_BUFFER; i++) {
+        
+
+        switch (se->buffer[i]) {
+            case '\n': printf("'\\n' "); break;
+            case '\t': printf("'\\t' "); break;
+            case ' ': printf("' '"); break;
+            case -1:   printf("EOF "); break;  // Centinela EOF
+            case 0:    printf(" <NULL>  "); break;  // Espacio no cargado
+            default:   printf(" %c  ", se->buffer[i]); break;
         }
 
+        if (i == MITAD_BUFFER - 1) {
+            printf("|  ");  // Separador visual de Bloque A y B
+        }
     }
+   
+    printf("\n");
 
-    printf(" }\n");
-
+    // Información adicional sobre los punteros y los buffers
+    printf("\n========== INFORMACIÓN ADICIONAL ==========\n");
+    printf("Buffer A: Índices [0 - %d]  |  Buffer B: Índices [%d - %d]\n", 
+            MITAD_BUFFER - 1 - 1, MITAD_BUFFER, TAM_TOTAL_BUFFER - 2);
+    printf("Centinelas: Buffer A (Posición %d - EOF) | Buffer B (Posición %d - EOF)\n", 
+            MITAD_BUFFER - 1, TAM_TOTAL_BUFFER - 1);
+    printf("Inicio: %d | Delantero: %d\n", se->inicio, se->delantero);
+    printf("Veces que el buffer se ha cargado: %d\n", se->flag_veces_buffer_cargado);
+    printf("===========================================\n");
 }
-
 
