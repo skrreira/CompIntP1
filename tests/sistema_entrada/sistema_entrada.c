@@ -78,7 +78,7 @@ char siguiente_caracter(){
 void casos_centinela_avanzar_puntero_delantero(){
 
     // Antes de avanzar, gestionamos casos especiales:
-    if (se->delantero == MITAD_BUFFER){     // DELANTERO => EOF de buffer A
+    if (se->delantero == MITAD_BUFFER - 1){     // DELANTERO => EOF de buffer A
 
         // Comprobamos flag para no volver a cargar el bloque si hemos retrocedido:
         if (no_cargar_bloque_flag == 0) cargar_buffer(1);
@@ -88,7 +88,7 @@ void casos_centinela_avanzar_puntero_delantero(){
         return;
 
     } 
-    if (se->delantero == TAM_TOTAL_BUFFER-1){     // DELANTERO => EOF de buffer B
+    else if (se->delantero == TAM_TOTAL_BUFFER-1){     // DELANTERO => EOF de buffer B
 
         // Comprobamos flag para no volver a cargar el bloque si hemos retrocedido:
         if (no_cargar_bloque_flag == 0) cargar_buffer(0);
