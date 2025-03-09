@@ -26,7 +26,6 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
     // Inicializamos los campos => BUFFER se inicializa solo 
     se->inicio = 0;
     se->delantero = 0;
-    se->flag_veces_buffer_cargado = 0;
     se->codigo_fuente = codigo_fuente;
 
     // Asignamos un -1 a los posiciones centinela (CLARIDAD)
@@ -35,6 +34,7 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
 
     // Cargamos sólamente el primer bloque (mejor que cargar ambos):
     cargar_buffer(0);
+    se->flag_veces_buffer_cargado = 0;  //no contamos esta carga
 
 }
 
@@ -128,7 +128,7 @@ void avanzar_puntero_inicio(){               // LA USAMOS para GET LEXEMA => ava
     
     // Caso dónde inicio esté en la posición anterior al centinela de A:
     if (se->inicio == MITAD_BUFFER - 1){
-        se->inicio = MITAD_BUFFER + 1;
+        se->inicio = MITAD_BUFFER + 1;  //CORREGIR????
         return;
     }
 
@@ -269,9 +269,24 @@ char* obtener_lexema(){
     } else {
 
         // Caso donde el lexema está dividido en dos mitades (doble buffer)
-        int primera_parte = (TAM_TOTAL_BUFFER - 1 - inicio);
+    int primera_parte, segunda_parte;
+
+    if (inicio < MITAD_BUFFER && delantero >= MITAD_BUFFER) { 
+        // Caso: Cruce de A -> B
+        primera_parte = MITAD_BUFFER - 1 - inicio; // Desde inicio hasta antes del centinela A
+        segunda_parte = delantero - MITAD_BUFFER; // Desde inicio de B hasta delantero
+
         memcpy(lexema, &se->buffer[inicio], primera_parte);
-        memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], delantero - (MITAD_BUFFER));
+        memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], segunda_parte);
+    } 
+    else { 
+        // Caso: Cruce de B -> A
+        primera_parte = TAM_TOTAL_BUFFER - 1 - inicio; // Desde inicio hasta antes del centinela B
+        segunda_parte = delantero; // Desde inicio de A hasta delantero
+
+        memcpy(lexema, &se->buffer[inicio], primera_parte);
+        memcpy(lexema + primera_parte, &se->buffer[0], segunda_parte);
+    }
     }
 
     lexema[longitud] = '\0'; // Agregar terminador de cadena

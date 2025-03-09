@@ -172,39 +172,50 @@ void test_retroceso_caracter_avanzado(const char *archivo) {
 }
 */
 
+
+//TEST: DONE
 void test_obtener_lexema(const char *archivo) {
     printf("===== TEST OBTENER LEXEMA =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
+    cargar_buffer(1);
+    se->flag_veces_buffer_cargado = 0;
     
+    /*
     printf("\n\n == CASO AMBOS BLOQUE A ==\n");
-    se->inicio = 11;
-    se->delantero = 36;
+    se->inicio = 0;
+    se->delantero = 54;
 
     printf("Probando obtener lexema...\n");
     char *lexema1 = obtener_lexema();
     if (lexema1) {
         printf("Lexema obtenido: %s\n", lexema1);
+        printf("Longitud lexema: %ld\n", strlen(lexema1));
         free(lexema1);
     } else {
         printf("Error obteniendo lexema\n");
     }
     imprimir_buffer();
+    
 
+     
     printf("\n\n== CASO AMBOS BLOQUE B ==\n");
-    se->inicio = MITAD_BUFFER + 5;
-    se->delantero = TAM_TOTAL_BUFFER - 35;
+    se->inicio = MITAD_BUFFER;
+    se->delantero = TAM_TOTAL_BUFFER - 15;
 
     printf("Probando obtener lexema...\n");
     char *lexema2 = obtener_lexema();
     if (lexema2) {
         printf("Lexema obtenido: %s\n", lexema2);
+        printf("Longitud lexema: %ld\n", strlen(lexema2));
         free(lexema2);
     } else {
         printf("Error obteniendo lexema\n");
     }
     imprimir_buffer();
+    
 
+    
     printf("\n\n== CASO INICIO BLOQUE A DELANTERO BLOQUE B ==\n");
     se->inicio = 5;
     se->delantero = TAM_TOTAL_BUFFER - 35;
@@ -213,12 +224,15 @@ void test_obtener_lexema(const char *archivo) {
     char *lexema3 = obtener_lexema();
     if (lexema3) {
         printf("Lexema obtenido: %s\n", lexema3);
+        printf("Longitud lexema: %ld\n", strlen(lexema3));
         free(lexema3);
     } else {
         printf("Error obteniendo lexema\n");
     }
     imprimir_buffer();
+    
 
+    
     printf("\n\n== CASO INICIO BLOQUE B DELANTERO BLOQUE A ==\n");
     se->inicio = TAM_TOTAL_BUFFER - 35;
     se->delantero = 5;
@@ -232,6 +246,7 @@ void test_obtener_lexema(const char *archivo) {
         printf("Error obteniendo lexema\n");
     }
     imprimir_buffer();
+    */
 
 
     cerrar_sistema_entrada();
@@ -299,8 +314,8 @@ int main() {
     //test_retroceso_caracter_basico(archivo_prueba);             //DONE
     //test_retroceso_caracter_avanzado(archivo_prueba);           //DONE
 
-    test_obtener_lexema(archivo_prueba);
-    //test_lexema_grande(archivo_prueba);
+    //test_obtener_lexema(archivo_prueba);  //DONJE
+    test_lexema_grande(archivo_prueba);
     //test_centinela_inicio_fin(archivo_prueba);
     //test_saltar_lexema(archivo_prueba);
     
