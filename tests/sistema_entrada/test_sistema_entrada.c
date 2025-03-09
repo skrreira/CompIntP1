@@ -291,6 +291,7 @@ void test_centinela_inicio_fin(const char *archivo) {
     //fclose(fp);
 }
 
+// TEST: DONE
 void test_saltar_lexema(const char *archivo) {
 
     printf("===== TEST SALTAR LEXEMA =====\n");
@@ -339,11 +340,10 @@ int main() {
 
     //test_obtener_lexema(archivo_prueba);  //DONJE
     //test_lexema_grande(archivo_prueba);   //DONE
-    
-    test_saltar_lexema(archivo_prueba);
+    //test_saltar_lexema(archivo_prueba);   //DONE
 
     // NO -> avanzar inicio
-    //test_centinela_inicio_fin(archivo_prueba);
+    // test_centinela_inicio_fin(archivo_prueba);
     
     printf("===== FIN DE PRUEBAS =====\n");
     return 0;

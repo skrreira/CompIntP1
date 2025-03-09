@@ -32,5 +32,9 @@ junto a los valores que se le darán en la tabla de símbolos*/
 
 // Definimos valor del token_identificador:
 #define TOKEN_IDENTIFICADOR 325
+#define TOKEN_NUMERO 326
+
+
+#define FIN 330
 
 #endif //DEFINICIONES_H

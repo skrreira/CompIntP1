@@ -5,9 +5,9 @@
 #include <string.h>
 
 // Definiciones
-#define TAM_BLOQUE 4096 // Tamaño de cada bloque (sin contar centinela)
-#define TAM_TOTAL_BUFFER 2*TAM_BLOQUE+2 // Tamaño total del buffer (contando dos bloques + centinelas)
-#define MITAD_BUFFER TAM_TOTAL_BUFFER/2 // Mitad del buffer (acaba el primer bloque, empieza el segundo)
+#define TAM_BLOQUE 64 // Tamaño de cada bloque (sin contar centinela)
+#define TAM_TOTAL_BUFFER (2 *TAM_BLOQUE + 2) // Tamaño total del buffer (contando dos bloques + centinelas)
+#define MITAD_BUFFER (TAM_TOTAL_BUFFER / 2) // Mitad del buffer (acaba el primer bloque, empieza el segundo)
 #define EOF_SIMULADO '\0' // Representación interna de EOF
 
 // Estructura
@@ -24,9 +24,8 @@ typedef struct SistemaEntrada
 } 
 SistemaEntrada;
 
-
 // Funciones de inicialización y cierre:
-void inicializar_sistema_entrada(FILE* codigo_fuente);
+SistemaEntrada* inicializar_sistema_entrada(FILE* codigo_fuente);
 void cerrar_sistema_entrada();
 
 // Lectura caracter y retroceso puntero delantero:
@@ -44,34 +43,6 @@ void saltar_lexema();
 
 // Función para debug:
 void imprimir_buffer();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif //SISTEMA_ENTRADA_H

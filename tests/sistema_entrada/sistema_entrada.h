@@ -24,7 +24,7 @@ typedef struct SistemaEntrada
 } 
 SistemaEntrada;
 
-// DEBUG
+// EXPORTAMOS se:
 extern SistemaEntrada *se;
 
 

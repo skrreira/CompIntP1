@@ -6,11 +6,11 @@
 #include "errores/errores.h"
 
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
-static SistemaEntrada *se = NULL;
 static int no_cargar_bloque_flag = 0;
+SistemaEntrada *se;
 
 // Función de inicialización:
-void inicializar_sistema_entrada(FILE* codigo_fuente){
+SistemaEntrada* inicializar_sistema_entrada(FILE* codigo_fuente){
 
     // Reservamos memoria para el struct:
     se = (SistemaEntrada*)malloc(sizeof(SistemaEntrada));
@@ -25,16 +25,18 @@ void inicializar_sistema_entrada(FILE* codigo_fuente){
     // Inicializamos los campos => BUFFER se inicializa solo 
     se->inicio = 0;
     se->delantero = 0;
-    se->flag_veces_buffer_cargado = 0;
     se->codigo_fuente = codigo_fuente;
 
     // Asignamos un -1 a los posiciones centinela (CLARIDAD)
-    se->buffer[MITAD_BUFFER] = -1;
+    se->buffer[MITAD_BUFFER - 1] = -1; //CORRECCIÓN
     se->buffer[TAM_TOTAL_BUFFER - 1] = -1;
 
     // Cargamos sólamente el primer bloque (mejor que cargar ambos):
     cargar_buffer(0);
+    se->flag_veces_buffer_cargado = 0;  //no contamos esta carga
 
+    // Devolvemos el sistema de entrada:
+    return se;
 }
 
 // Función de cierre del sistema de entrada:
@@ -47,12 +49,14 @@ void cerrar_sistema_entrada(){
         exit(1);
     }
 
+    
     // Cerramos el puntero al codigo fuente:
+    else{
     fclose(se->codigo_fuente);
 
     // Liberamos la memoria ocupada por el struct:
     free(se);    
-
+    }   
 }
 
 // Lectura caracter y retroceso puntero delantero:              // HACER DESPUÉS DE CARGAR BUFFER
@@ -75,7 +79,7 @@ char siguiente_caracter(){
 void casos_centinela_avanzar_puntero_delantero(){
 
     // Antes de avanzar, gestionamos casos especiales:
-    if (se->delantero == MITAD_BUFFER){     // DELANTERO => EOF de buffer A
+    if (se->delantero == MITAD_BUFFER - 1){     // DELANTERO => EOF de buffer A
 
         // Comprobamos flag para no volver a cargar el bloque si hemos retrocedido:
         if (no_cargar_bloque_flag == 0) cargar_buffer(1);
@@ -85,7 +89,7 @@ void casos_centinela_avanzar_puntero_delantero(){
         return;
 
     } 
-    if (se->delantero == TAM_TOTAL_BUFFER-1){     // DELANTERO => EOF de buffer B
+    else if (se->delantero == TAM_TOTAL_BUFFER-1){     // DELANTERO => EOF de buffer B
 
         // Comprobamos flag para no volver a cargar el bloque si hemos retrocedido:
         if (no_cargar_bloque_flag == 0) cargar_buffer(0);
@@ -110,8 +114,8 @@ void retroceder_puntero_delantero(){
     }
 
     // Caso dónde estamos en el inicio del bloque B (saltamos EOF de A):
-    if (se->delantero == MITAD_BUFFER + 1){
-        se->delantero = MITAD_BUFFER - 1;
+    if (se->delantero == MITAD_BUFFER){
+        se->delantero = MITAD_BUFFER - 2;
         no_cargar_bloque_flag = 1;
         return;
     }
@@ -125,7 +129,7 @@ void avanzar_puntero_inicio(){               // LA USAMOS para GET LEXEMA => ava
     
     // Caso dónde inicio esté en la posición anterior al centinela de A:
     if (se->inicio == MITAD_BUFFER - 1){
-        se->inicio = MITAD_BUFFER + 1;
+        se->inicio = MITAD_BUFFER + 1;  //CORREGIR????
         return;
     }
 
@@ -152,7 +156,8 @@ void saltar_lexema(){
     // casos donde inicio va a ir delante de delantero por un momento (hasta
     // la siguiente llamada a "siguienteCaracter")
 
-    // Casos especiales:
+    // ELIMINAR CONDICIÓN????
+    // Casos especiales (nunca se va a dar que delantero = MITAD_BUFFER pero por si acaso):
     if (se->inicio == MITAD_BUFFER) {se->inicio = MITAD_BUFFER + 1; return;}
     else if (se->inicio == TAM_TOTAL_BUFFER - 1) {se->inicio = 0; return; }
 
@@ -183,10 +188,10 @@ void cargar_buffer(int num_buffer){
     else if (num_buffer == 1){
 
         // Borramos los datos residuales antes de cargar nuevos datos:
-        memset(se->buffer + MITAD_BUFFER, 0, TAM_BLOQUE);   //quitamos el +1?
+        memset(&se->buffer[MITAD_BUFFER], 0, TAM_BLOQUE);   //quitamos el +1?
 
         // Cargamos los nuevos datos utilizando fread():
-        fread(&se->buffer + MITAD_BUFFER, TAM_BLOQUE, 1, se->codigo_fuente);
+        fread(&se->buffer[MITAD_BUFFER], TAM_BLOQUE, 1, se->codigo_fuente);
 
         // Aumentamos en 1 la cuenta de la flag de las cargas del buffer:
         se->flag_veces_buffer_cargado++;
@@ -266,9 +271,24 @@ char* obtener_lexema(){
     } else {
 
         // Caso donde el lexema está dividido en dos mitades (doble buffer)
-        int primera_parte = (TAM_TOTAL_BUFFER - 1 - inicio);
+    int primera_parte, segunda_parte;
+
+    if (inicio < MITAD_BUFFER && delantero >= MITAD_BUFFER) { 
+        // Caso: Cruce de A -> B
+        primera_parte = MITAD_BUFFER - 1 - inicio; // Desde inicio hasta antes del centinela A
+        segunda_parte = delantero - MITAD_BUFFER; // Desde inicio de B hasta delantero
+
         memcpy(lexema, &se->buffer[inicio], primera_parte);
-        memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], delantero - (MITAD_BUFFER));
+        memcpy(lexema + primera_parte, &se->buffer[MITAD_BUFFER], segunda_parte);
+    } 
+    else { 
+        // Caso: Cruce de B -> A
+        primera_parte = TAM_TOTAL_BUFFER - 1 - inicio; // Desde inicio hasta antes del centinela B
+        segunda_parte = delantero; // Desde inicio de A hasta delantero
+
+        memcpy(lexema, &se->buffer[inicio], primera_parte);
+        memcpy(lexema + primera_parte, &se->buffer[0], segunda_parte);
+    }
     }
 
     lexema[longitud] = '\0'; // Agregar terminador de cadena
@@ -281,22 +301,40 @@ char* obtener_lexema(){
 
 }
 
-// Función para debug:
-void imprimir_buffer(){
-    printf("\nBUFFER ACTUAL: {");
+// FUnción para debug:
+void imprimir_buffer() {
+    printf("\n=========== ESTADO ACTUAL DEL BUFFER ===========\n");
 
-    for(int i = 0; i < TAM_TOTAL_BUFFER; i++){
 
-        switch (se->buffer[i])
-        {
-        case '\n': printf("'\\n' | "); break;
-        case '\t': printf("'\\t' | "); break;
-        default: printf("%c | ", se->buffer[i]); break;
+    // Separador de buffer A y B
+    printf("\nBuffer:    ");
+    for (int i = 0; i < TAM_TOTAL_BUFFER; i++) {
+        
+
+        switch (se->buffer[i]) {
+            case '\n': printf("'\\n' "); break;
+            case '\t': printf("'\\t' "); break;
+            case ' ': printf("' '"); break;
+            case -1:   printf("EOF "); break;  // Centinela EOF
+            case 0:    printf(" <NULL>  "); break;  // Espacio no cargado
+            default:   printf(" %c  ", se->buffer[i]); break;
         }
 
+        if (i == MITAD_BUFFER - 1) {
+            printf("|  ");  // Separador visual de Bloque A y B
+        }
     }
+   
+    printf("\n");
 
-    printf(" }\n");
-
+    // Información adicional sobre los punteros y los buffers
+    printf("\n========== INFORMACIÓN ADICIONAL ==========\n");
+    printf("Buffer A: Índices [0 - %d]  |  Buffer B: Índices [%d - %d]\n", 
+            MITAD_BUFFER - 1 - 1, MITAD_BUFFER, TAM_TOTAL_BUFFER - 2);
+    printf("Centinelas: Buffer A (Posición %d - EOF) | Buffer B (Posición %d - EOF)\n", 
+            MITAD_BUFFER - 1, TAM_TOTAL_BUFFER - 1);
+    printf("Inicio: %d | Delantero: %d\n", se->inicio, se->delantero);
+    printf("Veces que el buffer se ha cargado: %d\n", se->flag_veces_buffer_cargado);
+    printf("===========================================\n");
 }
 

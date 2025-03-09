@@ -7,7 +7,6 @@
 
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
 static int no_cargar_bloque_flag = 0;
-
 SistemaEntrada *se;
 
 // Función de inicialización:
@@ -154,7 +153,6 @@ void saltar_lexema(){
     // el eof (centinela). Hay que gestionar este error, aunque vamos a tener 
     // casos donde inicio va a ir delante de delantero por un momento (hasta
     // la siguiente llamada a "siguienteCaracter")
-
 
     // ELIMINAR CONDICIÓN????
     // Casos especiales (nunca se va a dar que delantero = MITAD_BUFFER pero por si acaso):

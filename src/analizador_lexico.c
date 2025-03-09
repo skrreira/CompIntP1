@@ -6,12 +6,18 @@
 #include "TS.h"
 #include "errores/errores.h"
 #include <ctype.h>
+#include "sistema_entrada.h"
+#include "definiciones.h"
 
 // Variables globales
 FILE* codigo_fuente = NULL;
+SistemaEntrada* se = NULL;
+ComponenteLexico componenteLexico;
+TablaSimbolos* ts = NULL;
 
 // Prototipado de las funciones de los autómatas de cada tipo de componente léxico:
 void automata_identificador();
+void automata_barra_baja();
 void automata_numeros();
 void automata_operadores();
 void automata_comentarios();
@@ -34,12 +40,11 @@ void automata_hex_float();
 // IMAGINARIO: solo procesa una i => Añadimos por legibilidad
 void automata_imaginario();
 
-
 // Función para determinar que hacer a partir del caracter inicial:
 int reconocer_caracter_inicial(char c){
     
-    // 1º CASO: Letra o barra baja => IDENTIFICADOR o "_" (caracter especial)
-    if (isalpha(c) || c == '_') { return 1; }
+    // 1º CASO: Letra  => IDENTIFICADOR (puede ser llamado por el autómata de '_')
+    if (isalpha(c)) { return 1; }
 
     // 2º CASO: Número => NÚMEROS
     else if (isdigit(c)) { return 2; }
@@ -60,17 +65,25 @@ int reconocer_caracter_inicial(char c){
     // 7º CASO: Comillas => STRINGS => devuelve contenido entre comillas y TOKEN_STRING
     else if (c == '\'' || c == '\"') { return 7; }
 
+    // 8º CASO: Barra baja => puede llamar a IDENTIFICADOR (si después de la barra baja va un char alfanumérico):
+    else if (c == '_') { return 8; }
+
     // ÚLTIMO CASO: El caracter inicial no se corresponde con ninguno de los anteriores:
     return 0; //LLAMAR A ERROR?
 }
 
 // Función para inicializar el analizador léxico: será llamada desde main:
-int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts){ 
+int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts1){ 
     
     // Asignar puntero a FILE a la variable global para usar en "siguienteComponenteLexico()""
     codigo_fuente = codigo_fuente_arg;
 
+    // Inicizalizamos sistema de entrada:
+    se = inicializar_sistema_entrada(codigo_fuente);
+
     // Información: la TS se inicializa desde el main (asegura que se puede acceder desde cualquier parte):
+    ts = ts1;
+
     printf("\nAnalizador léxico inicializado correctamente\n");
 
     return 0;
@@ -79,8 +92,9 @@ int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts){
 // Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico(){
 
-    // Inicializamos una variable de tipo "ComponenteLexico":
-    ComponenteLexico componenteLexico = {0};
+    // Inicializamos la variable de tipo "ComponenteLexico":
+    componenteLexico.lexema = '\0';
+    componenteLexico.token = 0;
 
     // Variable para saber cuándo parar, variable de estado (del caracter inicial) y variable char:
     int stop = 0, estado = 0;
@@ -90,13 +104,13 @@ ComponenteLexico siguienteComponenteLexico(){
     while(!stop){
 
         // Leemos el siguiente caracter del documento //LUEGO SERÁ SISTEMA ENTRADA
-        c = fgetc(codigo_fuente);
+        c = siguiente_caracter();
 
         // Con un switch, hacemos las acciones correspondientes dependiendo del caracter inicial:
         estado = reconocer_caracter_inicial(c);
         switch (estado)
         {
-        case 1: //IDENTIFICADOR y '_'
+        case 1: //IDENTIFICADOR
             automata_identificador();
             break;
 
@@ -105,20 +119,17 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
 
         case 3: //ESPACIOS EN BLANCO
-            //aqui simplemente avanzamos el puntero
-            c = fgetc(codigo_fuente); // con sistema de entrada
+            avanzar_puntero_inico();
             continue;
             
         case 4: //FIN ARCHIVO
-            //devolvemos un componente léxico
-            //lexema = 'EOF' O -1
-            //token = FINAL
+            componenteLexico.lexema = obtener_lexema(); // Cogemos el lexema (char EOF)
+            componenteLexico.token = FIN;
             break;    
 
         case 5: //DELIMITADORES
-            //devolvemos un componente léxico
-            //lexema = c
-            //token = valor ASCII
+            componenteLexico.lexema = c;
+            componenteLexico.token = c; // Conversión implícita, devolvemos el valor ASCII
             break;
 
         case 6: //OPERADORES
@@ -128,41 +139,18 @@ ComponenteLexico siguienteComponenteLexico(){
         case 7: //STRING
             automata_string();
             break;
+
+        case 8: //BARRA BAJA
+            automata_barra_baja();
+            break;    
     
         case 0: 
-            /* code */
-            //PRINTEAMOS ERROR
+            //PRINTEAMOS ERROR y avanzamos caracter:
+            ERROR_GENERAL();
+            avanzar_puntero_inicio();
             break;
         }
-
     }
-
-    
-
-
-    
-    
-
-
-
-
-
-
-    // POR HACER
-
-    // AQUI SE NECESITA EL codigo_fuente
-
-    // autómata de reconocimiento de lexemas
-
-    // cuando se reconoce lexema, llamada a TS:
-        // se busca (función buscar)
-        // si devuelve un valor, se manda tupla <valor, lexema>
-        // si devuelve null, se manda tupla <valor_identificador, lexema>
-            // se inserta tupla en la TS (función insertar)
-
-
-
-
 
     return componenteLexico;
 };
@@ -175,80 +163,86 @@ void automata_identificador(){
 
     // Bucle para seguir procesando caracteres hasta que no sean aceptados:
     while(!stop){
-        // char c = siguiente char //TABLA SIMBOLOS
-        char c;
+        char c = siguiente_caracter();
 
-
-        // Si tenemos una '_' inicial y aparece otra '_', lanzamos error.
-
-        // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero.
+        // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero (la comprobación de doble barra baja inicial va en otro autómata)
         if(!(isalnum(c) || c != '_')){
-            
-            stop = 1;
-            //retroceder()
+            stop = 1;   // Avisamos para que pare
+            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+            componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
 
-            //AL ACABAR -> funcion auxiliar: get_lexema de sistema de entrada + función para buscar identificador en TS
-            // mandar_comp_lexico_TS() - COMPROBAMOS SI MANDAMOS EL LEXEMA '_' -> LO HACE TS
+            // Si no está en la tabla de símbolos, lo añadimos como identificador:
+            int token_recibido = buscarEnTS(ts, componenteLexico.lexema);
+            if (token_recibido == -1){
+                insertarIdentificadorTS(ts, componenteLexico.lexema);
+            }
+
+            // Si ya estaba, asignamos el valor del token al componente léxico:
+            else componenteLexico.token = token_recibido;
         }
     }
 }
 
+// Función que impolementa el autómata encargado de la gestión de identificadores que comienzan por '_':
+void automata_barra_baja(){
+
+    // Obtenemos siguiente char:
+    char c = siguiente_caracter();
+
+    // Si el siguiente char es otra '_', devolvemos error léxico:
+    if (c == '_'){
+        ERROR_GENERAL();
+    }
+
+    // Si el siguiente char es un caracter alfanumérico, redirigimos al autómata de identificadores:
+    else if (isalnum(c)){
+        automata_identificador();
+    }
+
+    // Si el siguiente char no es ni '_' ni alfanumérico, devolvemos identificador especial '_'
+    componenteLexico.lexema = c;
+    componenteLexico.token = c; // Cast implícito => devolvemos valor y no TOKEN_IDENTIFICADOR porque es especial.
+
+}
+
 // Función que implementa el autómata encargado de reconocer los números:
 void automata_numeros(){
-
     
-    // char c = siguiente char //SISTEMA ENTRADA
-    char c;
-
-    // Categorizamos el char y lo mandamos al responsable:
+    // char c = siguiente char, lo categorizamos y lo mandamos al responsable:
+    char c = siguiente_caracter();
 
     // Caso dónde el char es un '0':
     if(c == '0'){
 
-        //if (char c+1 == b || c+1 == B)
-        automata_binario();
+        // Obtenemos el siguiente caracter al 0, y vemos que tipo de numero es:
+        c = siguiente_caracter();
 
-        //if (char c+1 == o || c+1 == O || isdigit(c+1))
-        automata_octal();
-
-        //if (char c+1 == x || c+1 == X)
-        automata_hex();
-
+        if (c == 'b' || c == 'B') automata_binario();   // Realmente no hay números binarios en el código proporcionado
+        if (c == 'o' || c == 'O') automata_octal();
+        if (c == 'x' || c == 'X') automata_hex();
     }
 
     // Caso donde el char es un número != '0'
     else if(isdigit(c) && (c != '0')){
 
-        // El encargado será el autómata para los decimales:
-        automata_decimal();
-
+        automata_decimal(); // El encargado será el autómata para los decimales:
     }
 
     // Caso donde el char es un punto ('.'):
     else if(c == '.'){
-
-        // El encargado será el autómata de los números en punto flotante: ????
-        automata_decimal_float();
-
+        
+        automata_decimal_float();   // El encargado será el autómata de los números en punto flotante, independiente de si es decimal, binario...: 
     }
 
     // Si el primer char no es un número o un punto
     else{
-        
-        //retroceder()
-
-        //GET_LEXEMA
-        //devolver COMP_LEXICO?
-        //LANZAR ERROR
-    }
-
-
     
-
-
-
-
-
+        ERROR_GENERAL();
+        retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+        // Devolvemos sólamente el número que reconocimos:
+        componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+        componenteLexico.token = TOKEN_NUMERO;
+    }
 }
 
 
