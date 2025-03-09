@@ -155,7 +155,9 @@ void saltar_lexema(){
     // casos donde inicio va a ir delante de delantero por un momento (hasta
     // la siguiente llamada a "siguienteCaracter")
 
-    // Casos especiales:
+
+    // ELIMINAR CONDICIÓN????
+    // Casos especiales (nunca se va a dar que delantero = MITAD_BUFFER pero por si acaso):
     if (se->inicio == MITAD_BUFFER) {se->inicio = MITAD_BUFFER + 1; return;}
     else if (se->inicio == TAM_TOTAL_BUFFER - 1) {se->inicio = 0; return; }
 

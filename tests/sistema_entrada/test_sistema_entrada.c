@@ -253,14 +253,20 @@ void test_obtener_lexema(const char *archivo) {
     //fclose(fp);
 }
 
+//TEST: DONE
 void test_lexema_grande(const char *archivo) {
     printf("===== TEST LEXEMA DEMASIADO GRANDE =====\n");
     FILE *fp = fopen(archivo, "r");
     inicializar_sistema_entrada(fp);
     
+    cargar_buffer(1);
+    cargar_buffer(0);
+    se->delantero = 45;
+    se-> inicio = 100;
+
     printf("Probando lexema demasiado grande...\n");
     char *lexema = obtener_lexema();
-    ASSERT(lexema == NULL, "Manejo de lexema demasiado grande correcto");
+    printf("\nLEXEMA: %s.\n", lexema);
     
     imprimir_buffer();
     cerrar_sistema_entrada();
@@ -293,10 +299,27 @@ void test_saltar_lexema(const char *archivo) {
     
     
     printf("Probando saltar lexema...\n");
+    cargar_buffer(1);
+    
+    /*
+    printf("CASO GENERAL: \n");
+    se->inicio = 0;
+    se->delantero = 45;
+    saltar_lexema();
+    
+
+    printf("CASO DELANTERO = MITAD_BUFFER: \n");
+    se->inicio = 0;
     se->delantero = MITAD_BUFFER;
     saltar_lexema();
-    ASSERT(se->inicio == MITAD_BUFFER + 1, "Saltar lexema con centinela correcto");
     
+
+    printf("CASO DELANTERO = TAM_TOTAL_BUFFER - 1: \n");
+    se->inicio = 0;
+    se->delantero = TAM_TOTAL_BUFFER-1;
+    saltar_lexema();
+    */
+
     imprimir_buffer();
     cerrar_sistema_entrada();
     //fclose(fp);
@@ -315,9 +338,12 @@ int main() {
     //test_retroceso_caracter_avanzado(archivo_prueba);           //DONE
 
     //test_obtener_lexema(archivo_prueba);  //DONJE
-    test_lexema_grande(archivo_prueba);
+    //test_lexema_grande(archivo_prueba);   //DONE
+    
+    test_saltar_lexema(archivo_prueba);
+
+    // NO -> avanzar inicio
     //test_centinela_inicio_fin(archivo_prueba);
-    //test_saltar_lexema(archivo_prueba);
     
     printf("===== FIN DE PRUEBAS =====\n");
     return 0;

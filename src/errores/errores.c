@@ -2,5 +2,5 @@
 #include <stdio.h>
 
 void ERROR_GENERAL(){
-    printf("ERROR");
+    printf("ERROR\n");
 }
