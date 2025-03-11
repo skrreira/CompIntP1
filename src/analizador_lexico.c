@@ -8,6 +8,9 @@
 #include <ctype.h>
 #include "sistema_entrada.h"
 #include "definiciones.h"
+                                                    // CUIDADO: AÑADIR CASO NÚMEROS IMAGINARIOS -> en cada 
+
+                                                    // AÑADIR CASO 0_
 
 // Variables globales
 FILE* codigo_fuente = NULL;
@@ -27,18 +30,26 @@ void automata_string();
 
 // ENTEROS:
 void automata_decimal();
-void automata_binario();
-void automata_octal(); // 014 es octal
+//void automata_binario();
+//void automata_octal(); // 014 es octal
 void automata_hex();
 
 // PUNTO FLOTANTE:
 void automata_decimal_float();
-void automata_binario_float();
-void automata_octal_float();
+//void automata_binario_float();
+//void automata_octal_float();
 void automata_hex_float();
 
 // IMAGINARIO: solo procesa una i => Añadimos por legibilidad
 void automata_imaginario();
+
+// Funcion auxiliar para saber si es un delimitador, operador o espacio:
+int isDelimitador_Operador_o_Espacio(char c){
+    return (c == ',' || c == ';' || c == ':' || c == '(' || c == ')' ||
+        c == '{' || c == '}' || c == '[' || c == ']'
+    || c == '=' || c == '+' || c == '>' || c == '.' || c == '/' || c == ':' ||
+    c == ' ' || c == '/t' || c == '/r' || c == '/n' || c == '\'' || c == '\"');
+}
 
 // Función para determinar que hacer a partir del caracter inicial:
 int reconocer_caracter_inicial(char c){
@@ -69,6 +80,7 @@ int reconocer_caracter_inicial(char c){
     else if (c == '_') { return 8; }
 
     // ÚLTIMO CASO: El caracter inicial no se corresponde con ninguno de los anteriores:
+    ERROR_GENERAL();
     return 0; //LLAMAR A ERROR?
 }
 
@@ -153,6 +165,7 @@ ComponenteLexico siguienteComponenteLexico(){
     }
 
     return componenteLexico;
+    retroceder_puntero_delantero();
 };
 
 // Función que implementa el autómata encargado de reconocer los identificadores y keywords:
@@ -168,8 +181,9 @@ void automata_identificador(){
         // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero (la comprobación de doble barra baja inicial va en otro autómata)
         if(!(isalnum(c) || c != '_')){
             stop = 1;   // Avisamos para que pare
-            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+            
             componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
 
             // Si no está en la tabla de símbolos, lo añadimos como identificador:
             int token_recibido = buscarEnTS(ts, componenteLexico.lexema);
@@ -202,6 +216,7 @@ void automata_barra_baja(){
     // Si el siguiente char no es ni '_' ni alfanumérico, devolvemos identificador especial '_'
     componenteLexico.lexema = c;
     componenteLexico.token = c; // Cast implícito => devolvemos valor y no TOKEN_IDENTIFICADOR porque es especial.
+    retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
 
 }
 
@@ -217,8 +232,8 @@ void automata_numeros(){
         // Obtenemos el siguiente caracter al 0, y vemos que tipo de numero es:
         c = siguiente_caracter();
 
-        if (c == 'b' || c == 'B') automata_binario();   // Realmente no hay números binarios en el código proporcionado
-        if (c == 'o' || c == 'O') automata_octal();
+        //if (c == 'b' || c == 'B') automata_binario();   // Realmente no hay números binarios en el código proporcionado
+        //if (c == 'o' || c == 'O') automata_octal();     // Tampoco hay números octales
         if (c == 'x' || c == 'X') automata_hex();
     }
 
@@ -234,19 +249,261 @@ void automata_numeros(){
         automata_decimal_float();   // El encargado será el autómata de los números en punto flotante, independiente de si es decimal, binario...: 
     }
 
+    // Caso donde el siguiente caracter sea un operador, delimitador, etcera:
+    else if (isDelimitador_Operador_o_Espacio(c)){
+        componenteLexico.lexema = obtener_lexema();
+        componenteLexico.token = TOKEN_NUMERO;
+        retroceder_puntero_delantero();
+    }
+
     // Si el primer char no es un número o un punto
     else{
     
         ERROR_GENERAL();
-        retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+        
         // Devolvemos sólamente el número que reconocimos:
         componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
         componenteLexico.token = TOKEN_NUMERO;
+        retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
     }
 }
 
+// Función que implementa el autómata encargado de reconocer los números hexadecimales:
+void automata_hex(){
+
+    // Variable de parada:
+    int stop = 0;
+    int hayBarraBaja = 0; //flag
+
+    // Bucle para seguir procesando caracteres hasta que no sean aceptados:
+    while(!stop){
+
+        // char c = siguiente char, comprobamos:
+        char c = siguiente_caracter();
+
+        // Comprobaciones válidas:
+        if (c == '_' || hayBarraBaja != 1){
+            hayBarraBaja = 1;
+        }
+
+        /*
+        // Si entra un punto: hex_float:
+        if (c == '.'){
+            automata_hex_float();   // parte fraccionaria
+        }
+
+        // habria que comprobar si entra una P, si no entro un hexdigit de ultimo, error, si no, llamar a
+        // hex float => parte exponente
+        */
+
+        // Si entra un número HEX:
+        else if (isnum(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')){
+            hayBarraBaja = 0;
+        }
+
+        // Si entra un delimitador u operador:
+        else if (isDelimitador_Operador_o_Espacio(c)){
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_NUMERO;
+            retroceder_puntero_delantero();
+            stop = 1;
+        }
+
+        // Si entra una barra baja, 
+        else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
+            ERROR_GENERAL();
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_NUMERO;
+            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+            stop = 1;
+        }
+    }
+
+}
+
+// Función que implementa el autómata encargado de reconocer los números hexadecimales:
+void automata_decimal(){
+
+    // Variable de parada:
+    int stop = 0;
+    int hayBarraBaja = 1; //flag => empieza en 1 porq el primer caracter no puede ser _
+
+    // Bucle para seguir procesando caracteres hasta que no sean aceptados:
+    while(!stop){
+
+        // char c = siguiente char, comprobamos:
+        char c = siguiente_caracter();
+
+        // Comprobaciones válidas:
+        if (c == '_' && hayBarraBaja != 1){
+            hayBarraBaja = 1;
+        }
+
+        // Si entra un punto y no ha entrado de último una _: decimal_float:
+        if (c == '.' && hayBarraBaja != 1){
+            hayBarraBaja = 0;
+            automata_decimal_float(0);   // parte fraccionaria
+            stop = 1;
+        }
+
+        // Si entra una e, y el último caracter no es una barra baja: decimal_float:
+        if ((c == 'e' || c == 'E') && hayBarraBaja == 0){
+            automata_decimal_float(1);    // parte exponente
+            stop = 1;
+        }
+
+        // Si entra un número decimal:
+        else if (isnum(c)){
+            hayBarraBaja = 0;
+        }
+
+        // Si entra un delimitador u operador:
+        else if (isDelimitador_Operador_o_Espacio(c) && hayBarraBaja != 1){
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_NUMERO;
+            retroceder_puntero_delantero();
+            stop = 1;
+        }
+
+        else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
+            ERROR_GENERAL();
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_NUMERO;
+            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+            stop = 1;
+        }
+    }
+
+}
+
+// automata_hex_float()
+
+// Función que implementa el autómata encargado de reconocer los números hexadecimales:
+void automata_decimal_float(int parte_a_procesar){
+
+    // Variable de parada:
+    int stop = 0;
+    int hayBarraBaja = 1; //flag
+    int hayUltimoPunto = 0;
+    int haySigno = 0;
+    int esPrimeraIteracionExponente = 0;
+
+    // Decidimos que bucle procesará el caracter dependiendo de si es parte decimal o exponente:
+    int parteProcesarFloat = parte_a_procesar;
+
+    
+
+    // PARTE DECIMAL:
+    if (parteProcesarFloat == 0){
+
+        // El caracter último es un .:
+        hayUltimoPunto = 1;
+
+        // Bucle para seguir procesando caracteres hasta que no sean aceptados:
+        while(!stop){
+
+            // char c = siguiente char, comprobamos:
+            char c = siguiente_caracter();
+
+            // Comprobaciones válidas:
+            if (c == '_' && hayBarraBaja != 1 && hayUltimoPunto != 1){
+                hayBarraBaja = 1;
+                hayUltimoPunto = 0;
+            }
+
+            // Si entra un punto: error
+            if (c == '.'){
+                hayBarraBaja = 0;
+                ERROR_GENERAL();
+                componenteLexico.lexema = obtener_lexema();
+                componenteLexico.token = TOKEN_NUMERO;
+                stop = 1;
+            }
+
+            // Si entra una e, y el último caracter no es un número: decimal_float:
+            if ((c == 'e' || c == 'E') && hayBarraBaja != 1){
+                hayBarraBaja = 0;
+                hayUltimoPunto = 0;
+                automata_decimal_float(1);    // parte exponente
+                stop = 1;
+            }
+
+            // Si entra un número decimal:
+            else if (isnum(c)){
+                hayBarraBaja = 0;
+                hayUltimoPunto = 0;
+            }
+
+            // Si entra un delimitador u operador:
+            else if (isDelimitador_Operador_o_Espacio(c) && hayBarraBaja!=1 && hayUltimoPunto!=1){
+                componenteLexico.lexema = obtener_lexema();
+                componenteLexico.token = TOKEN_NUMERO;
+                retroceder_puntero_delantero();
+                stop = 1;
+            }
+
+            else {                              // Si entra una barra baja después de otra, o cualquier cosa diferente
+                ERROR_GENERAL();
+                componenteLexico.lexema = obtener_lexema();
+                componenteLexico.token = TOKEN_NUMERO;
+                retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+                stop = 1;
+            }
+        }
 
 
+
+    }
+
+    // PARTE EXPONENTE:
+    else{
+        // Bucle para seguir procesando caracteres hasta que no sean aceptados:
+        while(!stop){
+
+            // char c = siguiente char, comprobamos:
+            char c = siguiente_caracter();
+
+            // Comprobaciones válidas:
+            if (c == '_' || hayBarraBaja != 1){
+                hayBarraBaja = 1;
+            }
+
+            // Si entra un punto => error:
+            else if (c == '.'){
+                ERROR_GENERAL();
+                stop = 1;
+            }
+
+            // Si entra un número decimal:
+            else if (isnum(c)){
+                hayBarraBaja = 0;
+            }
+
+            // Si entra un + o -, y es inmediatamente siguiente a la e/E:
+            else if ((c == '+' || c == '-') && esPrimeraIteracionExponente == 0){
+                hayBarraBaja = 1; //no puede entrar _
+            }
+
+            // Si entra un delimitador u operador:
+            else if (isDelimitador_Operador_o_Espacio(c)){
+                componenteLexico.lexema = obtener_lexema();
+                componenteLexico.token = TOKEN_NUMERO;
+                retroceder_puntero_delantero();
+                stop = 1;
+            }
+
+            else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
+                ERROR_GENERAL();
+                componenteLexico.lexema = obtener_lexema();
+                componenteLexico.token = TOKEN_NUMERO;
+                retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+                stop = 1;
+            }
+
+        esPrimeraIteracionExponente = 1;
+        }
+    }
+}
 
 
 
