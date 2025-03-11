@@ -22,6 +22,7 @@ TablaSimbolos* ts = NULL;
 void automata_identificador();
 void automata_barra_baja();
 void automata_numeros();
+
 void automata_operadores();
 void automata_comentarios();
 void automata_string();
@@ -127,7 +128,7 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
 
         case 2: //NUMEROS
-            automata_numeros();
+            automata_numeros(c);
             break;
 
         case 3: //ESPACIOS EN BLANCO
@@ -221,10 +222,7 @@ void automata_barra_baja(){
 }
 
 // Función que implementa el autómata encargado de reconocer los números:
-void automata_numeros(){
-    
-    // char c = siguiente char, lo categorizamos y lo mandamos al responsable:
-    char c = siguiente_caracter();
+void automata_numeros(char c){
 
     // Caso dónde el char es un '0':
     if(c == '0'){
@@ -235,6 +233,14 @@ void automata_numeros(){
         //if (c == 'b' || c == 'B') automata_binario();   // Realmente no hay números binarios en el código proporcionado
         //if (c == 'o' || c == 'O') automata_octal();     // Tampoco hay números octales
         if (c == 'x' || c == 'X') automata_hex();
+
+        // Si el caracter obtenido, es diferente, error:
+        else {
+            ERROR_GENERAL();
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_NUMERO;
+            retroceder_puntero_delantero();
+        }
     }
 
     // Caso donde el char es un número != '0'
@@ -254,6 +260,11 @@ void automata_numeros(){
         componenteLexico.lexema = obtener_lexema();
         componenteLexico.token = TOKEN_NUMERO;
         retroceder_puntero_delantero();
+    }
+
+    // Caso donde hay una i => número imaginario:
+    else if (c == 'i'){
+        automata_imaginario();
     }
 
     // Si el primer char no es un número o un punto
@@ -309,6 +320,11 @@ void automata_hex(){
             stop = 1;
         }
 
+        // Caso donde hay una i => número imaginario:
+        else if (c == 'i'){
+            automata_imaginario();
+        }
+
         // Si entra una barra baja, 
         else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
             ERROR_GENERAL();
@@ -340,14 +356,14 @@ void automata_decimal(){
         }
 
         // Si entra un punto y no ha entrado de último una _: decimal_float:
-        if (c == '.' && hayBarraBaja != 1){
+        else if (c == '.' && hayBarraBaja != 1){
             hayBarraBaja = 0;
             automata_decimal_float(0);   // parte fraccionaria
             stop = 1;
         }
 
         // Si entra una e, y el último caracter no es una barra baja: decimal_float:
-        if ((c == 'e' || c == 'E') && hayBarraBaja == 0){
+        else if ((c == 'e' || c == 'E') && hayBarraBaja == 0){
             automata_decimal_float(1);    // parte exponente
             stop = 1;
         }
@@ -363,6 +379,11 @@ void automata_decimal(){
             componenteLexico.token = TOKEN_NUMERO;
             retroceder_puntero_delantero();
             stop = 1;
+        }
+
+        // Caso donde hay una i => número imaginario:
+        else if (c == 'i'){
+            automata_imaginario();
         }
 
         else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
@@ -412,7 +433,7 @@ void automata_decimal_float(int parte_a_procesar){
             }
 
             // Si entra un punto: error
-            if (c == '.'){
+            else if (c == '.'){
                 hayBarraBaja = 0;
                 ERROR_GENERAL();
                 componenteLexico.lexema = obtener_lexema();
@@ -421,7 +442,7 @@ void automata_decimal_float(int parte_a_procesar){
             }
 
             // Si entra una e, y el último caracter no es un número: decimal_float:
-            if ((c == 'e' || c == 'E') && hayBarraBaja != 1){
+            else if ((c == 'e' || c == 'E') && hayBarraBaja != 1){
                 hayBarraBaja = 0;
                 hayUltimoPunto = 0;
                 automata_decimal_float(1);    // parte exponente
@@ -440,6 +461,11 @@ void automata_decimal_float(int parte_a_procesar){
                 componenteLexico.token = TOKEN_NUMERO;
                 retroceder_puntero_delantero();
                 stop = 1;
+            }
+
+            // Caso donde hay una i => número imaginario:
+            else if (c == 'i' && hayBarraBaja!=1 && hayUltimoPunto != 1){
+                automata_imaginario();
             }
 
             else {                              // Si entra una barra baja después de otra, o cualquier cosa diferente
@@ -492,6 +518,11 @@ void automata_decimal_float(int parte_a_procesar){
                 stop = 1;
             }
 
+            // Caso donde hay una i => número imaginario:
+            else if (c == 'i' && esPrimeraIteracionExponente != 0 && hayBarraBaja != 1){
+                automata_imaginario();
+            }
+
             else {                              // Si entra una barra baja después de otra, o cualquier cosa no hex:
                 ERROR_GENERAL();
                 componenteLexico.lexema = obtener_lexema();
@@ -508,10 +539,27 @@ void automata_decimal_float(int parte_a_procesar){
 // Función que implementa el autómata encargado de reconocer los números imaginarios (se llama desde el resto):
 void automata_imaginario(){ // Se llama cuando se detecta una i
 
-    // Siempre devolvemos
+    // Char
+    char c = siguiente_caracter();
 
+    // Comprobamos si el siguiente es diferente a un operador, delimitador o espacio para devolver sin errores.
+    if (isDelimitador_Operador_o_Espacio(c) && c != '.'){
+        componenteLexico.lexema = obtener_lexema();
+        componenteLexico.token = TOKEN_NUMERO;
+        retroceder_puntero_delantero();
+    }
+
+    // Si no, devolvemos con ERROR:
+    else {
+        ERROR_GENERAL();
+        componenteLexico.lexema = obtener_lexema();
+        componenteLexico.token = TOKEN_NUMERO;
+        retroceder_puntero_delantero();
+    }
 
 }
+
+// Función que implementa 
 
 
 /*
