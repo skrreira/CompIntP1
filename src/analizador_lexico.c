@@ -246,7 +246,7 @@ void automata_numeros(){
     // Caso donde el char es un punto ('.'):
     else if(c == '.'){
         
-        automata_decimal_float();   // El encargado será el autómata de los números en punto flotante, independiente de si es decimal, binario...: 
+        automata_decimal_float(0);   // El encargado será el autómata de los números en punto flotante, independiente de si es decimal, binario...: 
     }
 
     // Caso donde el siguiente caracter sea un operador, delimitador, etcera:
@@ -505,7 +505,13 @@ void automata_decimal_float(int parte_a_procesar){
     }
 }
 
+// Función que implementa el autómata encargado de reconocer los números imaginarios (se llama desde el resto):
+void automata_imaginario(){ // Se llama cuando se detecta una i
 
+    // Siempre devolvemos
+
+
+}
 
 
 /*
