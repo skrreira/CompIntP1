@@ -8,9 +8,6 @@
 #include <ctype.h>
 #include "sistema_entrada.h"
 #include "definiciones.h"
-                                                    // CUIDADO: AÑADIR CASO NÚMEROS IMAGINARIOS -> en cada 
-
-                                                    // AÑADIR CASO 0_
 
 // Variables globales
 FILE* codigo_fuente = NULL;
@@ -146,7 +143,7 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
 
         case 6: //OPERADORES
-            automata_operadores();
+            automata_operadores(c);
             break;
             
         case 7: //STRING
@@ -559,9 +556,152 @@ void automata_imaginario(){ // Se llama cuando se detecta una i
 
 }
 
-// Función que implementa 
+// Función que implementa el autómata de operadores:
+void automata_operadores() {
+    char c = siguiente_caracter(); // Obtener el primer carácter
+    int stop = 0; // Variable para controlar la finalización del bucle
+    
+    while (!stop) {
+        // Operadores + y - pueden repetirse o combinarse con '='
+        if (c == '+' || c == '-') {
+            c = siguiente_caracter();
+            if (c != '+' && c != '-' && c != '=') {
+                retroceder_puntero_delantero();
+            }
+            stop = 1;
+        } 
+        // Operadores individuales que pueden combinarse con '='
+        else if (c == ':' || c == '*' || c == '%' || c == '|' || c == '^' || c == '!' || c == '=') {
+            c = siguiente_caracter();
+            if (c != '=') {
+                retroceder_puntero_delantero();
+            }
+            stop = 1;
+        } 
+        // Operador '/' puede ser parte de un comentario o un operador '/='
+        else if (c == '/') {
 
+            // Verificamos siguiente caracter
+            c = siguiente_caracter();
 
-/*
-EL RESTO DEL CÓDIGO ES IGUAL: hay que echarle horas. Antes de ponernos, casi vamos a implementar
-el sistema de entrada antes (clase de mañana), el analizador léxico no tiene nada.*/
+            // Si es un igual, salimos inmediatamente:
+            if (c == '=') {
+                stop = 1;
+            } 
+
+            // Si es un '/' o un '*', son comentarios => se mandan a su autómata:
+            else if (c == '/' ) {
+                automata_comentarios(0);
+                stop = 1;
+            
+            } 
+            else if (c == '*'){
+                automata_comentarios(1);
+                stop = 1;
+            }
+
+            // Otro caso, se terminó el operador:
+            else {
+                retroceder_puntero_delantero();
+                stop = 1;
+            }
+        } 
+
+        // Operadores '<' y '>' pueden ser dobles o combinados con '=' o '-'
+        else if (c == '<' || c == '>') {
+            char operador = c; // Operador original
+            c = siguiente_caracter();
+            if (c == '=') {
+                stop = 1;
+            } else if ((operador == '<' && c == '<') || (operador == '>' && c == '>')) {
+                c = siguiente_caracter();
+                if (c != '=') {
+                    retroceder_puntero_delantero();
+                }
+                stop = 1;
+            } else if (operador == '<' && c == '-') {
+                stop = 1;
+            } else {
+                retroceder_puntero_delantero();
+                stop = 1;
+            }
+        } 
+        
+        // Operador '&' puede formar '&&', '&=', o '&^='
+        else if (c == '&') {
+            c = siguiente_caracter();
+            if (c == '&' || c == '=') {
+                stop = 1;
+            } else if (c == '^') {
+                c = siguiente_caracter();
+                if (c != '=') {
+                    retroceder_puntero_delantero();
+                }
+                stop = 1;
+            } else {
+                retroceder_puntero_delantero();
+                stop = 1;
+            }
+        }
+    }
+    
+    // Asignar el lexema y el token correspondiente
+    if (componenteLexico.token != TOKEN_COMENTARIO) {   //Si el token ha sido puesto por autómata comentarios
+        
+        componenteLexico.lexema = obtener_lexema(); // Obtener el lexema reconocido
+        
+        // Un solo char
+        if (strlen(componenteLexico.lexema) == 1) {
+            componenteLexico.token = (int)componenteLexico.lexema[0]; // Asignar ASCII si es un solo caracter
+        } 
+        // Varios char
+        else {
+            componenteLexico.token = TOKEN_OPERADOR; // Asignar token de operador
+        }
+    }
+}
+
+// Función que implementa el autómata de comentarios:
+void automata_comentarios(int tipo_comentario){
+
+    // Caracter:
+    char c;
+
+    // Si se ha llamado con un comentario "//":
+    if (tipo_comentario == 0) {
+        
+        // Iteramos hasta llegar a un salto de línea o un EOF
+        while ((c = siguienteCaracter()) != '\n' && c != EOF);
+    }
+
+    // Si es un comentario de bloque "/* */":
+    else if (tipo_comentario == 1) {
+
+        // Iteramos hasta encontrar el fin del comentario
+        while ((c = siguienteCaracter()) != EOF) {
+
+            // Si encontramos un '*', evalúamos la posibilidad de que el siguiente caracter sea un '/':
+            if (c == '*') {
+
+                // Si ademas, el siguiente es un '/', acaba el bucle while
+                if ((c = siguienteCaracter()) == '/') {
+
+                    // Salimos del bucle
+                    break;
+                }
+            }
+        }
+    }
+
+    // Saltamos el lexema:
+    saltar_lexema();
+
+    // Marcamos que el identificador es el de comentario, para que en operadores no se haga nada con el lexema:
+    componenteLexico.token = TOKEN_COMENTARIO;
+
+}
+
+// Función que implementa el autómata encargado de la gestión de Strings:
+void automata_strings(){
+
+}
