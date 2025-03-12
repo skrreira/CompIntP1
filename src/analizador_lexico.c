@@ -147,7 +147,7 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
             
         case 7: //STRING
-            automata_string();
+            automata_string(c);
             break;
 
         case 8: //BARRA BAJA
@@ -626,7 +626,7 @@ void automata_operadores() {
                 stop = 1;
             }
         } 
-        
+
         // Operador '&' puede formar '&&', '&=', o '&^='
         else if (c == '&') {
             c = siguiente_caracter();
@@ -701,7 +701,78 @@ void automata_comentarios(int tipo_comentario){
 
 }
 
-// Función que implementa el autómata encargado de la gestión de Strings:
-void automata_strings(){
+// Función que implementa el autómata encargado de la gestión de los delimitadores:
+void automata_delimitadores(char c) {
+    
+    if (c == '.') {
+        // Manejo del punto: puede ser un delimitador o el inicio de un número flotante
+        char siguiente = siguiente_caracter();
+        if (isdigit(siguiente)) {
+            automata_decimal_float(siguiente); // Si el siguiente carácter es un dígito, es un número decimal float
+        } else {
+            retroceder_puntero_delantero(); // Retrocedemos el carácter si no es un número
+        }
+    } 
+    else if (c == ':') {
+        // Manejo del carácter ':' que puede formar ':='
+        char siguiente = siguiente_caracter();
+        if (siguiente == '=') {
+            // Caso de operador de asignación ':='
+            componenteLexico.lexema = obtener_lexema();
+            componenteLexico.token = TOKEN_OPERADOR;
+        } else {
+            retroceder_puntero_delantero(); // Retrocedemos si no forma ':='
+        }
+    }
+    
+    else {
+        // Caso general para cualquier otro delimitador
+        componenteLexico.lexema = obtener_lexema();
+        componenteLexico.token = (int)c; // Se asigna el código ASCII como token => más eficiente y simple
+    }
+}
 
+// Función que implementa el autómata encargado de la gestión de Strings:
+void automata_string(char c) {
+    int stop = 0; // Variable de control para detener el bucle
+    
+    // Comienza una cadena con comillas dobles
+    if (c == '"') {
+        char siguiente;
+        while (!stop) {
+            siguiente = siguiente_caracter();
+            
+            if (siguiente == '"') {
+                stop = 1; // Fin de la cadena
+            } else if (siguiente == '\\') {
+                siguiente_caracter(); // Saltar el carácter escapado
+            } else if (siguiente == EOF) {
+                stop = 1; // Manejo de error: cadena no cerrada
+            }
+        }
+        
+        if (siguiente == '"') {
+            componenteLexico.lexema = obtener_lexema(); // Obtener el lexema de la cadena
+            componenteLexico.token = TOKEN_STRING;
+        }
+    } 
+
+    // Comienza una cadena con comillas invertidas (raw string)
+    else if (c == '`') {
+        char siguiente;
+        while (!stop) {
+            siguiente = siguiente_caracter();
+            
+            if (siguiente == '`') {
+                stop = 1; // Fin de la cadena
+            } else if (siguiente == EOF) {
+                stop = 1; // Manejo de error: cadena no cerrada
+            }
+        }
+        
+        if (siguiente == '`') {
+            componenteLexico.lexema = obtener_lexema(); // Obtener el lexema de la cadena
+            componenteLexico.token = TOKEN_STRING;
+        }
+    }
 }

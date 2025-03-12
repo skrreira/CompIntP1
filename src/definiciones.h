@@ -35,8 +35,12 @@ junto a los valores que se le darán en la tabla de símbolos*/
 #define TOKEN_NUMERO 326
 #define TOKEN_COMENTARIO 327
 #define TOKEN_OPERADOR 328
+#define TOKEN_STRING 329
 
+// Definimos valor de tipo de datos:
+#define FLOAT32 330
 
+// Definimos un valor para el fin:
 #define FIN 330
 
 #endif //DEFINICIONES_H
