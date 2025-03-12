@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../libs/uthash.h" // Librería uthash.h ubicada en la carpeta libs
-#include "analizador_lexico.h"
 
 /**
  * Utilizamos la librería open-source uthash.h para implementar la tabla hash.
@@ -13,6 +12,10 @@
  * implementar una tabla hash manualmente. Además, uthash.h es solo un archivo de cabecera,
  * por lo que podemos modificar su código directamente si fuera necesario en algún momento.
  */
+
+// Prototipado:
+typedef struct ComponenteLexico ComponenteLexico;
+
 
 // Estructura que representa cada entrada en la tabla hash.
 // Clave: cadena de caracteres (máx 64), Valor: puntero genérico.

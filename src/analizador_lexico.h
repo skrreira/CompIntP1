@@ -4,9 +4,10 @@
 // Includes
 #include <stdio.h>
 #include "sistema_entrada.h"
+#include "TS.h"
 
 // Tipo que utilizaremos para devolver componentes léxicos:
-typedef struct{
+typedef struct ComponenteLexico{
     int token;
     char* lexema;
 } ComponenteLexico;

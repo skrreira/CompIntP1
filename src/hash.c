@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "analizador_lexico.h"
 
 /*
  * uthash representa la tabla hash como un puntero a la primera entrada.

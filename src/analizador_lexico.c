@@ -1,6 +1,3 @@
-//aqui habra un bucle que procese cada componente,
-//ademas de otras cosas como includes de la TS y estructuras de datos
-
 #include "analizador_lexico.h" // El tipo de datos "ComponenteLexico" viene del archivo .h
 #include <string.h>
 #include "TS.h"
@@ -11,18 +8,17 @@
 
 // Variables globales
 FILE* codigo_fuente = NULL;
-SistemaEntrada* se = NULL;
 ComponenteLexico componenteLexico;
 TablaSimbolos* ts = NULL;
 
 // Prototipado de las funciones de los autómatas de cada tipo de componente léxico:
 void automata_identificador();
 void automata_barra_baja();
-void automata_numeros();
+void automata_numeros(char c);
 
 void automata_operadores();
 void automata_comentarios();
-void automata_string();
+void automata_string(char c);
 
 // Sub-Autómatas encargados del reconocimiento de números:
 
@@ -44,9 +40,9 @@ void automata_imaginario();
 // Funcion auxiliar para saber si es un delimitador, operador o espacio:
 int isDelimitador_Operador_o_Espacio(char c){
     return (c == ',' || c == ';' || c == ':' || c == '(' || c == ')' ||
-        c == '{' || c == '}' || c == '[' || c == ']'
-    || c == '=' || c == '+' || c == '>' || c == '.' || c == '/' || c == ':' ||
-    c == ' ' || c == '/t' || c == '/r' || c == '/n' || c == '\'' || c == '\"');
+        c == '{' || c == '}' || c == '[' || c == ']' ||
+        c == '=' || c == '+' || c == '>' || c == '.' || c == '/' || c == ':' ||
+        c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\'' || c == '\"');
 }
 
 // Función para determinar que hacer a partir del caracter inicial:
@@ -59,7 +55,7 @@ int reconocer_caracter_inicial(char c){
     else if (isdigit(c)) { return 2; }
 
     // 3º CASO: Espacios en blanco y CR => Se avanza (no se llama a ningún autómata)
-    else if (c == ' ' || c == '/t' || c == '/r' || c == '/n') { return 3; }
+    else if (c == ' ' || c == '\t' || c == '\r' || c == '\n') { return 3; }
 
     // 4º CASO: Fin de archivo => Se devuelve lexema y se manda código FINAL
     else if (c == EOF) { return 4; }
@@ -129,7 +125,7 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
 
         case 3: //ESPACIOS EN BLANCO
-            avanzar_puntero_inico();
+            avanzar_puntero_inicio();
             continue;
             
         case 4: //FIN ARCHIVO
@@ -138,8 +134,11 @@ ComponenteLexico siguienteComponenteLexico(){
             break;    
 
         case 5: //DELIMITADORES
-            componenteLexico.lexema = c;
-            componenteLexico.token = c; // Conversión implícita, devolvemos el valor ASCII
+            static char buffer[2];  
+            buffer[0] = c;
+            buffer[1] = '\0';
+            componenteLexico.lexema = buffer;
+            componenteLexico.token = c;
             break;
 
         case 6: //OPERADORES
@@ -212,7 +211,10 @@ void automata_barra_baja(){
     }
 
     // Si el siguiente char no es ni '_' ni alfanumérico, devolvemos identificador especial '_'
-    componenteLexico.lexema = c;
+    static char buffer[2];  
+    buffer[0] = c;
+    buffer[1] = '\0';
+    componenteLexico.lexema = buffer;
     componenteLexico.token = c; // Cast implícito => devolvemos valor y no TOKEN_IDENTIFICADOR porque es especial.
     retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
 
@@ -305,7 +307,7 @@ void automata_hex(){
         */
 
         // Si entra un número HEX:
-        else if (isnum(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')){
+        else if (isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')){
             hayBarraBaja = 0;
         }
 
@@ -366,7 +368,7 @@ void automata_decimal(){
         }
 
         // Si entra un número decimal:
-        else if (isnum(c)){
+        else if (isdigit(c)){
             hayBarraBaja = 0;
         }
 
@@ -403,7 +405,6 @@ void automata_decimal_float(int parte_a_procesar){
     int stop = 0;
     int hayBarraBaja = 1; //flag
     int hayUltimoPunto = 0;
-    int haySigno = 0;
     int esPrimeraIteracionExponente = 0;
 
     // Decidimos que bucle procesará el caracter dependiendo de si es parte decimal o exponente:
@@ -447,7 +448,7 @@ void automata_decimal_float(int parte_a_procesar){
             }
 
             // Si entra un número decimal:
-            else if (isnum(c)){
+            else if (isdigit(c)){
                 hayBarraBaja = 0;
                 hayUltimoPunto = 0;
             }
@@ -498,7 +499,7 @@ void automata_decimal_float(int parte_a_procesar){
             }
 
             // Si entra un número decimal:
-            else if (isnum(c)){
+            else if (isdigit(c)){
                 hayBarraBaja = 0;
             }
 
@@ -671,20 +672,20 @@ void automata_comentarios(int tipo_comentario){
     if (tipo_comentario == 0) {
         
         // Iteramos hasta llegar a un salto de línea o un EOF
-        while ((c = siguienteCaracter()) != '\n' && c != EOF);
+        while ((c = siguiente_caracter()) != '\n' && c != EOF);
     }
 
     // Si es un comentario de bloque "/* */":
     else if (tipo_comentario == 1) {
 
         // Iteramos hasta encontrar el fin del comentario
-        while ((c = siguienteCaracter()) != EOF) {
+        while ((c = siguiente_caracter()) != EOF) {
 
             // Si encontramos un '*', evalúamos la posibilidad de que el siguiente caracter sea un '/':
             if (c == '*') {
 
                 // Si ademas, el siguiente es un '/', acaba el bucle while
-                if ((c = siguienteCaracter()) == '/') {
+                if ((c = siguiente_caracter()) == '/') {
 
                     // Salimos del bucle
                     break;

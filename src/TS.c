@@ -2,6 +2,8 @@
 #include "definiciones.h"
 #include "hash.h"
 #include "errores/errores.h"
+#include "analizador_lexico.h"
+#include <stdio.h>
 
 // Define
 #define TOKEN_NO_ENCONTRADO -1

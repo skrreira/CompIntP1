@@ -2,7 +2,6 @@
 #define TABLA_SIMBOLOS_H
 
 #include "hash.h"
-#include "analizador_lexico.h"
 
 // Estructura que encapsula la tabla hash subyacente
 typedef struct {

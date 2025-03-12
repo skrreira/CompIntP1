@@ -10,6 +10,9 @@
 #define MITAD_BUFFER (TAM_TOTAL_BUFFER / 2) // Mitad del buffer (acaba el primer bloque, empieza el segundo)
 #define EOF_SIMULADO '\0' // Representación interna de EOF
 
+// Variable externa
+extern SistemaEntrada *se;
+
 // Estructura
 typedef struct SistemaEntrada
 {
@@ -32,7 +35,7 @@ void cerrar_sistema_entrada();
 char siguiente_caracter();
 void casos_centinela_avanzar_puntero_delantero();
 void retroceder_puntero_delantero();
-void avanzar_puntero_inico();
+void avanzar_puntero_inicio();
 
 // Manejo de buffers y EOF
 void cargar_buffer(int num_buffer);
