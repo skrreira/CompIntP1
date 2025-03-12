@@ -5,7 +5,7 @@
 #include <string.h>
 
 // Definiciones
-#define TAM_BLOQUE 64 // Tamaño de cada bloque (sin contar centinela)
+#define TAM_BLOQUE 128 // Tamaño de cada bloque (sin contar centinela)
 #define TAM_TOTAL_BUFFER (2 *TAM_BLOQUE + 2) // Tamaño total del buffer (contando dos bloques + centinelas)
 #define MITAD_BUFFER (TAM_TOTAL_BUFFER / 2) // Mitad del buffer (acaba el primer bloque, empieza el segundo)
 #define EOF_SIMULADO '\0' // Representación interna de EOF

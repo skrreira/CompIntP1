@@ -16,7 +16,7 @@ void automata_identificador();
 void automata_barra_baja();
 void automata_numeros(char c);
 
-void automata_operadores();
+void automata_operadores(char c);
 void automata_comentarios();
 void automata_string(char c);
 
@@ -65,13 +65,16 @@ int reconocer_caracter_inicial(char c){
     c == '{' || c == '}' || c == '[' || c == ']') { return 5; }
 
     // 6º CASO: Operadores => OPERADORES => Puede llamar a FLOAT (caso ".123") y a COMENTARIOS (caso "//" y "/*")
-    else if (c == '=' || c == '+' || c == '>' || c == '.' || c == '/' || c == ':') { return 6; }
+    else if (c == '=' || c == '+' || c == '>' || c == '/' || c == ':') { return 6; }
 
     // 7º CASO: Comillas => STRINGS => devuelve contenido entre comillas y TOKEN_STRING
     else if (c == '\'' || c == '\"') { return 7; }
 
     // 8º CASO: Barra baja => puede llamar a IDENTIFICADOR (si después de la barra baja va un char alfanumérico):
     else if (c == '_') { return 8; }
+
+    // 9º CASO: punto => decimal flotante:
+    else if (c == '.') { return 9; }
 
     // ÚLTIMO CASO: El caracter inicial no se corresponde con ninguno de los anteriores:
     ERROR_GENERAL();
@@ -103,8 +106,8 @@ ComponenteLexico siguienteComponenteLexico(){
     char c;
 
     // Bucle while mientras no se necesite parar de procesar caracteres:
-    while(!stop){
-
+    while(stop == 0){
+        //sleep(1);
         // Leemos el siguiente caracter del documento //LUEGO SERÁ SISTEMA ENTRADA
         c = siguiente_caracter();
 
@@ -113,44 +116,64 @@ ComponenteLexico siguienteComponenteLexico(){
         switch (estado)
         {
         case 1: //IDENTIFICADOR
-        printf("entrando identificador\n");
             automata_identificador();
-            //stop = 1;
+            stop = 1;
             break;
 
         case 2: //NUMEROS
+            printf("AUTO NUMEROS:\n");
             automata_numeros(c);
+            stop = 1;
             break;
 
         case 3: //ESPACIOS EN BLANCO
-            avanzar_puntero_inicio();
+            saltar_lexema();
             continue;
             
         case 4: //FIN ARCHIVO
-            componenteLexico.lexema = obtener_lexema(); // Cogemos el lexema (char EOF)
+            static char buffer1[4];  
+            buffer1[0] = 'E';
+            buffer1[1] = '0';
+            buffer1[2] = 'F';
+            buffer1[3] = '\0';
+            componenteLexico.lexema = buffer1; // Cogemos el lexema (char EOF)
             componenteLexico.token = FIN;
+            stop = 1;
             break;    
 
         case 5: //DELIMITADORES
+            printf("AUTO DELIMITADORES:\n");
             static char buffer[2];  
             buffer[0] = c;
             buffer[1] = '\0';
             componenteLexico.lexema = buffer;
             componenteLexico.token = c;
+            stop = 1;
             break;
 
         case 6: //OPERADORES
+            printf("AUTO OPERADORES:\n");
             automata_operadores(c);
+            stop = 1;
             break;
             
         case 7: //STRING
+            printf("AUTO STRING:\n");
             automata_string(c);
+            stop = 1;
             break;
 
         case 8: //BARRA BAJA
             automata_barra_baja();
+            stop = 1;
             break;    
-    
+
+        case 9: //punto
+            printf("AUTO PUNTO:\n");
+            automata_decimal_float(0);
+            stop = 1;
+            break;    
+
         case 0: 
             //PRINTEAMOS ERROR y avanzamos caracter:
             ERROR_GENERAL();
@@ -158,7 +181,7 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
         }
     }
-    retroceder_puntero_delantero();
+    //retroceder_puntero_delantero();
     return componenteLexico;
     
 };
@@ -170,25 +193,26 @@ void automata_identificador(){
     int stop = 0;
 
     // Bucle para seguir procesando caracteres hasta que no sean aceptados:
-    printf("while automata\n");
+    //printf("while automata\n");
     while(!stop){
-        printf("SIGUIENTE CARACTER\n");
+        //sleep(1);
+        //printf("SIGUIENTE CARACTER\n");
         char c = siguiente_caracter();
-
         // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero (la comprobación de doble barra baja inicial va en otro autómata)
-        if(!isalnum(c) && c != '_'){
+        if((!isalnum(c)) && c != '_'){
             stop = 1;   // Avisamos para que pare
             
-            printf("obtener lexema\n");
-            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
-            componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+            //printf("obtener lexema\n");
             //retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+            componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+            retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
             // Si no está en la tabla de símbolos, lo añadimos como identificador:
             
             int token_recibido = buscarEnTS(ts, componenteLexico.lexema);
             if (token_recibido == -1){
                 
                 insertarIdentificadorTS(ts, componenteLexico.lexema);
+                componenteLexico.token = buscarEnTS(ts, componenteLexico.lexema);
             
             }
             
@@ -196,7 +220,7 @@ void automata_identificador(){
             // Si ya estaba, asignamos el valor del token al componente léxico:
             else componenteLexico.token = token_recibido;
             return;
-        }
+        }   
     }
 }
 
@@ -209,6 +233,7 @@ void automata_barra_baja(){
     // Si el siguiente char es otra '_', devolvemos error léxico:
     if (c == '_'){
         ERROR_GENERAL();
+        retroceder_puntero_delantero();
     }
 
     // Si el siguiente char es un caracter alfanumérico, redirigimos al autómata de identificadores:
@@ -217,12 +242,16 @@ void automata_barra_baja(){
     }
 
     // Si el siguiente char no es ni '_' ni alfanumérico, devolvemos identificador especial '_'
-    static char buffer[2];  
-    buffer[0] = c;
-    buffer[1] = '\0';
-    componenteLexico.lexema = buffer;
-    componenteLexico.token = c; // Cast implícito => devolvemos valor y no TOKEN_IDENTIFICADOR porque es especial.
-    retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+    else{
+        static char buffer[2];  
+        buffer[0] = '_';
+        buffer[1] = '\0';
+        retroceder_puntero_delantero();
+        componenteLexico.lexema = buffer;
+        componenteLexico.token = '_'; // Cast implícito => devolvemos valor y no TOKEN_IDENTIFICADOR porque es especial.
+    }
+    
+    
 
 }
 
@@ -242,6 +271,7 @@ void automata_numeros(char c){
         // Si el caracter obtenido, es diferente, error:
         else {
             ERROR_GENERAL();
+            
             componenteLexico.lexema = obtener_lexema();
             componenteLexico.token = TOKEN_NUMERO;
             retroceder_puntero_delantero();
@@ -262,6 +292,7 @@ void automata_numeros(char c){
 
     // Caso donde el siguiente caracter sea un operador, delimitador, etcera:
     else if (isDelimitador_Operador_o_Espacio(c)){
+        
         componenteLexico.lexema = obtener_lexema();
         componenteLexico.token = TOKEN_NUMERO;
         retroceder_puntero_delantero();
@@ -278,9 +309,10 @@ void automata_numeros(char c){
         ERROR_GENERAL();
         
         // Devolvemos sólamente el número que reconocimos:
+        
         componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
         componenteLexico.token = TOKEN_NUMERO;
-        retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
+        retroceder_puntero_delantero();
     }
 }
 
@@ -347,7 +379,7 @@ void automata_decimal(){
 
     // Variable de parada:
     int stop = 0;
-    int hayBarraBaja = 1; //flag => empieza en 1 porq el primer caracter no puede ser _
+    int hayBarraBaja = 0; //flag => empieza en 1 porq el primer caracter no puede ser _
 
     // Bucle para seguir procesando caracteres hasta que no sean aceptados:
     while(!stop){
@@ -358,6 +390,7 @@ void automata_decimal(){
         // Comprobaciones válidas:
         if (c == '_' && hayBarraBaja != 1){
             hayBarraBaja = 1;
+            continue;
         }
 
         // Si entra un punto y no ha entrado de último una _: decimal_float:
@@ -431,7 +464,7 @@ void automata_decimal_float(int parte_a_procesar){
             char c = siguiente_caracter();
 
             // Comprobaciones válidas:
-            if (c == '_' && hayBarraBaja != 1 && hayUltimoPunto != 1){
+            if ((c == '_') && (hayBarraBaja != 1) && (hayUltimoPunto != 1)){
                 hayBarraBaja = 1;
                 hayUltimoPunto = 0;
             }
@@ -442,10 +475,11 @@ void automata_decimal_float(int parte_a_procesar){
                 ERROR_GENERAL();
                 componenteLexico.lexema = obtener_lexema();
                 componenteLexico.token = TOKEN_NUMERO;
+                retroceder_puntero_delantero();
                 stop = 1;
             }
 
-            // Si entra una e, y el último caracter no es un número: decimal_float:
+            // Si entra una e, y el último caracter es un número: decimal_float:
             else if ((c == 'e' || c == 'E') && hayBarraBaja != 1){
                 hayBarraBaja = 0;
                 hayUltimoPunto = 0;
@@ -490,8 +524,10 @@ void automata_decimal_float(int parte_a_procesar){
         // Bucle para seguir procesando caracteres hasta que no sean aceptados:
         while(!stop){
 
+            
             // char c = siguiente char, comprobamos:
             char c = siguiente_caracter();
+            printf("\nPARTE EXPONENTE: %c", c);
 
             // Comprobaciones válidas:
             if (c == '_' || hayBarraBaja != 1){
@@ -564,24 +600,37 @@ void automata_imaginario(){ // Se llama cuando se detecta una i
 }
 
 // Función que implementa el autómata de operadores:
-void automata_operadores() {
-    char c = siguiente_caracter(); // Obtener el primer carácter
+void automata_operadores(char c) {
+    //char c = siguiente_caracter(); // Obtener el primer carácter
     int stop = 0; // Variable para controlar la finalización del bucle
     
-    while (!stop) {
+    while (stop == 0) {
+        //sleep(1);
         // Operadores + y - pueden repetirse o combinarse con '='
         if (c == '+' || c == '-') {
             c = siguiente_caracter();
-            if (c != '+' && c != '-' && c != '=') {
+            if (c == '+' && c == '-' && c == '=') {
+                printf("1\n");
                 retroceder_puntero_delantero();
+            }
+            else{
+                printf("1.2\n");
+                //retroceder_puntero_delantero();
             }
             stop = 1;
         } 
-        // Operadores individuales que pueden combinarse con '='
+        // Operadores individuales que pueden combinarse con '='<
         else if (c == ':' || c == '*' || c == '%' || c == '|' || c == '^' || c == '!' || c == '=') {
+            printf("Valor de c1 = %c.", c);
             c = siguiente_caracter();
-            if (c != '=') {
+            printf("\nValor de c2 = %c.", c);
+            if (c == '=') {
+                printf("2\n");
                 retroceder_puntero_delantero();
+            }
+            else{
+                printf("2.1\n");
+                
             }
             stop = 1;
         } 
@@ -629,6 +678,8 @@ void automata_operadores() {
             } else if (operador == '<' && c == '-') {
                 stop = 1;
             } else {
+                ERROR_GENERAL();
+                printf("3\n");
                 retroceder_puntero_delantero();
                 stop = 1;
             }
@@ -642,10 +693,15 @@ void automata_operadores() {
             } else if (c == '^') {
                 c = siguiente_caracter();
                 if (c != '=') {
+                    ERROR_GENERAL();
+                    printf("4\n");
                     retroceder_puntero_delantero();
+                    stop = 1;
                 }
                 stop = 1;
             } else {
+                ERROR_GENERAL();
+                printf("5\n");
                 retroceder_puntero_delantero();
                 stop = 1;
             }
@@ -655,6 +711,7 @@ void automata_operadores() {
     // Asignar el lexema y el token correspondiente
     if (componenteLexico.token != TOKEN_COMENTARIO) {   //Si el token ha sido puesto por autómata comentarios
         
+        //retroceder_puntero_delantero();
         componenteLexico.lexema = obtener_lexema(); // Obtener el lexema reconocido
         
         // Un solo char
@@ -678,7 +735,7 @@ void automata_comentarios(int tipo_comentario){
     if (tipo_comentario == 0) {
         
         // Iteramos hasta llegar a un salto de línea o un EOF
-        while ((c = siguiente_caracter()) != '\n' && c != EOF);
+        while (((c = siguiente_caracter()) != '\n') && c != EOF);
     }
 
     // Si es un comentario de bloque "/* */":
@@ -711,22 +768,15 @@ void automata_comentarios(int tipo_comentario){
 // Función que implementa el autómata encargado de la gestión de los delimitadores:
 void automata_delimitadores(char c) {
     
-    if (c == '.') {
-        // Manejo del punto: puede ser un delimitador o el inicio de un número flotante
-        char siguiente = siguiente_caracter();
-        if (isdigit(siguiente)) {
-            automata_decimal_float(siguiente); // Si el siguiente carácter es un dígito, es un número decimal float
-        } else {
-            retroceder_puntero_delantero(); // Retrocedemos el carácter si no es un número
-        }
-    } 
-    else if (c == ':') {
+    if (c == ':') {
         // Manejo del carácter ':' que puede formar ':='
         char siguiente = siguiente_caracter();
         if (siguiente == '=') {
             // Caso de operador de asignación ':='
+            
             componenteLexico.lexema = obtener_lexema();
             componenteLexico.token = TOKEN_OPERADOR;
+            retroceder_puntero_delantero();
         } else {
             retroceder_puntero_delantero(); // Retrocedemos si no forma ':='
         }
@@ -734,8 +784,10 @@ void automata_delimitadores(char c) {
     
     else {
         // Caso general para cualquier otro delimitador
+        retroceder_puntero_delantero();
         componenteLexico.lexema = obtener_lexema();
         componenteLexico.token = (int)c; // Se asigna el código ASCII como token => más eficiente y simple
+        
     }
 }
 
@@ -746,22 +798,28 @@ void automata_string(char c) {
     // Comienza una cadena con comillas dobles
     if (c == '"') {
         char siguiente;
-        while (!stop) {
+        while (stop == 0) {
             siguiente = siguiente_caracter();
             
             if (siguiente == '"') {
                 stop = 1; // Fin de la cadena
+                siguiente_caracter();
+                componenteLexico.lexema = obtener_lexema(); // Obtener el lexema de la cadena
+                componenteLexico.token = TOKEN_STRING;
+                return;
             } else if (siguiente == '\\') {
                 siguiente_caracter(); // Saltar el carácter escapado
             } else if (siguiente == EOF) {
                 stop = 1; // Manejo de error: cadena no cerrada
+                componenteLexico.lexema = obtener_lexema(); // Obtener el lexema de la cadena
+                componenteLexico.token = TOKEN_STRING;
+                return;
+            }
+            else{
+                continue;
             }
         }
         
-        if (siguiente == '"') {
-            componenteLexico.lexema = obtener_lexema(); // Obtener el lexema de la cadena
-            componenteLexico.token = TOKEN_STRING;
-        }
     } 
 
     // Comienza una cadena con comillas invertidas (raw string)

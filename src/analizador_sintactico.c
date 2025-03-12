@@ -20,8 +20,7 @@ al acabar, imprimimos que el analizador_sintactico finalizo
 #include "analizador_lexico.h"
 #include "errores/errores.h"
 #include <unistd.h>
-
-#define TOKEN_EOF -1
+#include "definiciones.h"
 
 
 // Función: inicia el analizador sintáctico. Usada desde el main:
@@ -50,7 +49,7 @@ int iniciar_analizador_sintactico(){ //No necesita referencia al fichero => se l
         tampoco serán comprobados en la tabla de símbolos. */
 
     }
-    while(componenteLexico.token != TOKEN_EOF);
+    while(componenteLexico.token != FIN);
 
     // Informamos de que ha finalizado el analizador:
     printf("\nAnálisis finalizado\n");

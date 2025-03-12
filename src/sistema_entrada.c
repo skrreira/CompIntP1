@@ -8,8 +8,6 @@
 // Variables estáticas para facilitar la comunicación entre funciones del sistema_entrada:
 static int no_cargar_bloque_flag = 0;
 SistemaEntrada *se;
-
-// Función de inicialización:
 SistemaEntrada* inicializar_sistema_entrada(FILE* codigo_fuente){
 
     // Reservamos memoria para el struct:
@@ -64,6 +62,11 @@ char siguiente_caracter(){
 
     // Hacemos las comprobaciones y el manejo de los casos en los que apuntemos a EOF:
     casos_centinela_avanzar_puntero_delantero();
+
+    // Si leemos un '\0' devolvemos EOF:
+    char c1 = se->buffer[se->delantero];
+    //printf("VALOR c= %c\n", c1);
+    if (c1 == '\0' || c1 == 0) return EOF;
 
     // Obtenemos el caracter:
     char c = se->buffer[se->delantero];
@@ -238,7 +241,7 @@ char* obtener_lexema(){
 
     // Caso en el que inicio y delantero están en la misma mitad del buffer
     else if ((inicio < MITAD_BUFFER - 1 && delantero < MITAD_BUFFER - 1) || (inicio > MITAD_BUFFER - 1 && delantero > MITAD_BUFFER - 1)) {
-        longitud = delantero - inicio;
+        longitud = delantero - inicio - 1;
     }
 
     // Caso en el que inicio y delantero están en mitades opuestas (cruce de buffers)
@@ -294,6 +297,7 @@ char* obtener_lexema(){
     lexema[longitud] = '\0'; // Agregar terminador de cadena
 
     // Actualizar inicio del buffer
+    se->delantero++;    //OJO
     se->inicio = delantero;
     se->flag_veces_buffer_cargado = 0;
 
