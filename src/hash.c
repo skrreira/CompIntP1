@@ -18,7 +18,7 @@ void inicializarEstructuraDatos(TablaHash *tabla) {
  * Inserta una clave y un valor en la tabla hash.
  * Si la clave ya existe, se actualiza el valor asociado.
  */
-void insertarEstructuraDatos(TablaHash *tabla, const char *clave, void *valor) {
+void insertarEnEstructuraDatos(TablaHash *tabla, const char *clave, void *valor) {
     EntradaHash *entrada;
 
     /*

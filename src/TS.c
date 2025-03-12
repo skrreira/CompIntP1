@@ -40,7 +40,8 @@ static const PalabraReservada palabrasReservadas[] = {
     {"for", FOR},
     {"import", IMPORT},
     {"return", RETURN},
-    {"var", VAR}
+    {"var", VAR},
+    {"float32", FLOAT32}
 };
 
 // Función que calcula el número de palabras reservadas del array (cuenta los elementos):
@@ -57,6 +58,7 @@ void inicializarTS(TablaSimbolos *ts){
     printf("Estructura de datos de la tabla de símbolos inicializada.\n\n");
 
     // Cargamos palabras reservadas en la tabla de símbolos:
+    printf("Cargando palabras reservadas...\n");
     cargarPalabrasReservadas(ts);
     
     // Información:
@@ -64,30 +66,44 @@ void inicializarTS(TablaSimbolos *ts){
 
 }
 
-// Función privada para precargar las palabras reservadas de Go utilizando el array de Strings:
-// Cargamos palabras reservadas => OJO, PREGUNTAR EN CLASE
 void cargarPalabrasReservadas(TablaSimbolos *ts) {
-
     // Iteramos una vez por cada "keyword" del array:
     for (int i = 0; i < NUM_PALABRAS_RESERVADAS; i++) { 
 
-        // Reservamos memoria para guardar un nuevo elemento tipo "ComponenteLexico":
+        // Reservamos memoria para un nuevo ComponenteLexico
         ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
+        if (nuevo == NULL) {
+            fprintf(stderr, "Error: No se pudo asignar memoria para ComponenteLexico\n");
+            exit(EXIT_FAILURE);
+        }
 
-        // Copiamos el valor del token del array de Strings al nuevo elemento:
+        // Copiamos el valor del token
         nuevo->token = palabrasReservadas[i].token;
 
-        // Ídem con la cadena que representa el lexema:
-        strcpy(nuevo->lexema, palabrasReservadas[i].lexema);
+        // Asignamos memoria para el lexema y copiamos la palabra
+        nuevo->lexema = malloc(strlen(palabrasReservadas[i].lexema) + 1);
+        if (nuevo->lexema == NULL) {
+            fprintf(stderr, "Error: No se pudo asignar memoria para nuevo->lexema\n");
+            free(nuevo);  // Liberamos el ComponenteLexico antes de salir
+            exit(EXIT_FAILURE);
+        }
+        strcpy(nuevo->lexema, palabrasReservadas[i].lexema); // Copiamos el lexema
 
         // Insertamos el elemento en la tabla hash:
-        insertarEnEstructuraDatos(&ts->tabla, nuevo->lexema, nuevo); //lexema es la clave, nuevo es el ComponenteLExico
+        insertarEnEstructuraDatos(&ts->tabla, nuevo->lexema, nuevo); 
     }
 }
 
 // 2. Inserta un nuevo <token_identificador, lexema_identificador> en la tabla de símbolos.
 // Sólo insertará identificadores, todas las 'keywords' son insertadas en inicialización.
 void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya que no va a ser modificado.
+
+    // Caso TS no inicializada:
+    if (ts == NULL){
+        ERROR_GENERAL();
+        printf("Tabla de símbolos no inicializada.\n");
+        return;
+    }
 
     // Comprobamos si ya existe el identificador en la tabla Hash:
     if (buscarEnEstructuraDatos(&ts->tabla, lexema) != NULL) {
@@ -98,13 +114,20 @@ void insertarIdentificadorTS(TablaSimbolos *ts, const char* lexema){ //const ya 
         no se encuentra un valor para un lexema dado.*/
     }
 
+    
     // Reservamos memoria para almacenar un nuevo elemento tipo "ComponenteLexico"
     ComponenteLexico *nuevo = malloc(sizeof(ComponenteLexico));
-
+    
     // Copiamos el valor del token identificador:
     nuevo->token = TOKEN_IDENTIFICADOR;
 
     // Ídem con la cadena que representa el lexema:
+    nuevo->lexema = malloc(strlen(lexema) + 1);
+    if (nuevo->lexema == NULL) {
+        fprintf(stderr, "[ERROR] No se pudo reservar memoria para lexema '%s'.\n", lexema);
+        free(nuevo); // Liberar la memoria del nodo si falla
+        exit(EXIT_FAILURE);
+    }
     strcpy(nuevo->lexema, lexema);
 
     // Insertamos el elemento en la tabla hash:

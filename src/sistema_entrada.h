@@ -10,9 +10,6 @@
 #define MITAD_BUFFER (TAM_TOTAL_BUFFER / 2) // Mitad del buffer (acaba el primer bloque, empieza el segundo)
 #define EOF_SIMULADO '\0' // Representación interna de EOF
 
-// Variable externa
-extern SistemaEntrada *se;
-
 // Estructura
 typedef struct SistemaEntrada
 {
@@ -26,6 +23,9 @@ typedef struct SistemaEntrada
     FILE* codigo_fuente;
 } 
 SistemaEntrada;
+
+// Variable externa
+extern SistemaEntrada *se;
 
 // Funciones de inicialización y cierre:
 SistemaEntrada* inicializar_sistema_entrada(FILE* codigo_fuente);

@@ -32,7 +32,10 @@ int main(int argc, char* argv[]){
 
     // Inicializamos la tabla de símbolos:
     TablaSimbolos ts;
+    printf("\nInicializando Tabla de Símbolos...\n");
     inicializarTS(&ts);
+    
+    printf("\n\nImprimiendo Tabla de Símbolos...\n");
     imprimirEstructuraDatos(&(ts.tabla));
 
     // Inicializar analizador léxico y estructuras de datos (constructor). Le pasamos el documento

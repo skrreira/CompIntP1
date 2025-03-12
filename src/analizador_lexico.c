@@ -80,26 +80,22 @@ int reconocer_caracter_inicial(char c){
 
 // Función para inicializar el analizador léxico: será llamada desde main:
 int inicializar_analizador_lexico(FILE* codigo_fuente_arg, TablaSimbolos *ts1){ 
-    
-    // Asignar puntero a FILE a la variable global para usar en "siguienteComponenteLexico()""
     codigo_fuente = codigo_fuente_arg;
-
-    // Inicizalizamos sistema de entrada:
+    ts = ts1;  // ← ¡Aquí asignamos el puntero!
+    if (ts == NULL) {
+        fprintf(stderr, "Error: Tabla de símbolos no inicializada\n");
+        exit(EXIT_FAILURE);
+    }
     se = inicializar_sistema_entrada(codigo_fuente);
-
-    // Información: la TS se inicializa desde el main (asegura que se puede acceder desde cualquier parte):
-    ts = ts1;
-
     printf("\nAnalizador léxico inicializado correctamente\n");
-
     return 0;
-};
+}
 
 // Función para obtener siguiente componente léxico: será llamada por el analizador sintáctico:
 ComponenteLexico siguienteComponenteLexico(){
 
     // Inicializamos la variable de tipo "ComponenteLexico":
-    componenteLexico.lexema = '\0';
+    componenteLexico.lexema = NULL;
     componenteLexico.token = 0;
 
     // Variable para saber cuándo parar, variable de estado (del caracter inicial) y variable char:
@@ -117,7 +113,9 @@ ComponenteLexico siguienteComponenteLexico(){
         switch (estado)
         {
         case 1: //IDENTIFICADOR
+        printf("entrando identificador\n");
             automata_identificador();
+            //stop = 1;
             break;
 
         case 2: //NUMEROS
@@ -160,9 +158,9 @@ ComponenteLexico siguienteComponenteLexico(){
             break;
         }
     }
-
-    return componenteLexico;
     retroceder_puntero_delantero();
+    return componenteLexico;
+    
 };
 
 // Función que implementa el autómata encargado de reconocer los identificadores y keywords:
@@ -172,24 +170,32 @@ void automata_identificador(){
     int stop = 0;
 
     // Bucle para seguir procesando caracteres hasta que no sean aceptados:
+    printf("while automata\n");
     while(!stop){
+        printf("SIGUIENTE CARACTER\n");
         char c = siguiente_caracter();
 
         // Si el char no es alfanumérico o una barra baja, paramos y retrocedemos puntero (la comprobación de doble barra baja inicial va en otro autómata)
-        if(!(isalnum(c) || c != '_')){
+        if(!isalnum(c) && c != '_'){
             stop = 1;   // Avisamos para que pare
             
-            componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+            printf("obtener lexema\n");
             retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
-
+            componenteLexico.lexema = obtener_lexema(); //COMPROBAR: Al igual no hay que retroceder antes de obtener_lexema
+            //retroceder_puntero_delantero(); // Retrocedemos el puntero delantero para estar bien situado para el siguiente lexema.
             // Si no está en la tabla de símbolos, lo añadimos como identificador:
+            
             int token_recibido = buscarEnTS(ts, componenteLexico.lexema);
             if (token_recibido == -1){
+                
                 insertarIdentificadorTS(ts, componenteLexico.lexema);
+            
             }
+            
 
             // Si ya estaba, asignamos el valor del token al componente léxico:
             else componenteLexico.token = token_recibido;
+            return;
         }
     }
 }
